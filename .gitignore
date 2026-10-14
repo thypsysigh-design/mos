@@ -1,0 +1,8 @@
+node_modules/
+.expo/
+dist/
+web-dist/
+playtest/
+*.log
+.env*
+!.env.example

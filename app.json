@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "사령패 — 잔향의 숲",
+    "slug": "mos-adventure",
+    "version": "0.2.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.thypsysigh.mos"
+    },
+    "android": {
+      "package": "com.thypsysigh.mos"
+    },
+    "web": {
+      "name": "사령패 — 잔향의 숲",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-status-bar"
+    ]
+  }
+}
