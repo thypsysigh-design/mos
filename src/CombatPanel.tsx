@@ -1,34 +1,19 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { battleDisabled, equipment, skills, type BattleAction, type Run } from './game';
+import { equipment, type BattleReport, type Run } from './game';
 
-const actions: { id: BattleAction; name: string; hint: string }[] = [
-  { id: 'attack', name: '공격', hint: '기본 공격 · 치명타 가능' },
-  { id: 'guard', name: '방어', hint: '피해 절반 · 기력 +1' },
-  { id: 'skill', name: '직업 기술', hint: '기력 2 소모' },
-  { id: 'potion', name: '산삼 탕약', hint: '체력 +12 · 적도 행동' },
-  { id: 'flee', name: '도주', hint: '성공률 70% · 실패 시 반격' },
-];
-export function CombatPanel({ run, onAction }: { run: Run; onAction: (action: BattleAction) => void }) {
-  const c = run.combat!;
-  const skillHint = run.role === 'monk' ? '기력 2 · 피해 +1, 체력 +5, 피해 절반' : run.role === 'scholar' ? '기력 2 · 지혜에 비례한 주술 피해' : run.role === 'wanderer' ? '기력 2 · 의지에 비례한 사격 피해' : '기력 2 · 공격 피해 +5';
-  const intent = c.intent === 'heavy' ? '강타 준비 · 다음 공격 +4, 방어가 유리합니다' : c.intent === 'recover' ? '회복 준비 · 이번 턴은 공격하지 않습니다' : '일반 공격 준비';
+export function BattleResult({ report }: { report: BattleReport }) {
+  const outcome = report.outcome === 'victory' ? '승리' : report.outcome === 'defeat' ? '패배' : '철수';
   return <View style={s.panel}>
-    <Text style={[s.detail, { color: '#8b2924', marginBottom: 12 }]}>내 체력 {run.hero.hp} / {run.hero.maxHp} · Lv.{run.progression.level}</Text>
-    <Text style={s.kicker}>{c.boss ? '최후의 사냥' : '요괴 조우'} · {c.turn}번째 턴</Text>
-    <Text style={[s.enemy, { color: '#332311' }]}>{c.enemy}</Text>
-    <Text style={[s.detail, { color: '#59462f' }]}>요괴 체력 {c.hp} / {c.maxHp}</Text>
-    <View style={s.track}><View style={[s.fill, { width: `${c.hp / c.maxHp * 100}%` }]} /></View>
-    <View style={s.intent}><Text style={s.intentText}>⚠ {intent}</Text></View>
-    <Text style={[s.detail, { color: '#59462f' }]}>기력 {run.progression.energy} / 3 · 산삼 탕약 {run.progression.potions}개</Text>
-    <Text style={[s.help, { color: '#786343' }]}>한 번 선택하면 요괴도 행동합니다. 적의 예고를 살펴보세요.</Text>
-    <View style={s.actions}>{actions.map(a => {
-      const reason = battleDisabled(run, a.id);
-      return <Pressable key={a.id} disabled={!!reason} accessibilityRole="button" accessibilityState={{ disabled: !!reason }} onPress={() => onAction(a.id)} style={({ pressed }) => [s.action, !!reason && { opacity: 0.4 }, pressed && { backgroundColor: '#d7c199' }]}>
-        <Text style={s.actionName}>{a.id === 'skill' ? skills[run.role] : a.name}</Text><Text style={s.actionHint}>{reason ?? (a.id === 'skill' ? skillHint : a.hint)}</Text>
-      </Pressable>;
-    })}</View>
-    <Text style={s.kicker}>전투 기록</Text><View accessibilityLiveRegion="polite" style={s.log}>{c.log.slice(-9).map((line, i) => <Text key={`${c.turn}-${i}`} style={s.line}>{line}</Text>)}</View>
+    <Text style={s.kicker}>자동 전투 결과 · {report.rounds}턴</Text>
+    <Text accessibilityLiveRegion="polite" style={[s.enemy, { color: '#332311' }]}>{outcome} · {report.enemy}</Text>
+    <Text style={[s.detail, { color: '#59462f' }]}>내 체력 {report.startHp} → {report.endHp}</Text>
+    <Text style={[s.detail, { color: '#59462f' }]}>획득 보상 · {report.gold}냥 · 경험치 {report.exp}{report.outcome === 'victory' ? ' · 봉인 유물 1개' : ''}</Text>
+    {report.items.map(id => <Text key={id} style={[s.detail, { color: '#8b2924' }]}>전리품 · {equipment[id].name}</Text>)}
+    {report.levels > 0 && <Text style={[s.detail, { color: '#8b2924' }]}>레벨 +{report.levels} · 최대 체력 증가</Text>}
+    <Text style={[s.help, { color: '#786343' }]}>직업 기술·방어·탕약 사용까지 자동으로 진행됩니다.</Text>
+    <Text style={s.kicker}>전체 전투 기록</Text>
+    <View style={s.log}>{report.log.map((line, i) => <Text key={i} style={s.line}>{line}</Text>)}</View>
   </View>;
 }
 export function EquipmentPanel({ run, onEquip }: { run: Run; onEquip: (id: string) => void }) {

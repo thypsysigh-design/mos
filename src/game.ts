@@ -6,7 +6,8 @@ type Effect = { text: string; hp?: number; gold?: number; relics?: number; flag?
 export type Scene = { id: string; title: string; place: string; text: string; choices: Choice[] };
 export type Combat = { enemy: string; hp: number; maxHp: number; attack: number; turn: number; intent: 'strike' | 'heavy' | 'recover'; log: string[]; boss: boolean };
 export type Progression = { level: number; exp: number; potions: number; energy: number; inventory: string[]; weapon: string | null; armor: string | null };
-export type Run = { role: Role; day: number; seed: number; hero: Hero; sceneId: string; visited: string[]; flags: string[]; journal: string[]; result: string | null; ending: string | null; combat: Combat | null; progression: Progression };
+export type BattleReport = { enemy: string; outcome: 'victory' | 'defeat' | 'retreat'; rounds: number; startHp: number; endHp: number; gold: number; exp: number; items: string[]; levels: number; log: string[] };
+export type Run = { role: Role; day: number; seed: number; hero: Hero; sceneId: string; visited: string[]; flags: string[]; journal: string[]; result: string | null; ending: string | null; combat: Combat | null; progression: Progression; battleReport: BattleReport | null };
 export type RecordEntry = { id: string; role: Role; ending: string; days: number; relics: number };
 export type Save = { version: 1; run: Run | null; records: RecordEntry[] };
 export const roles: Record<Role, { name: string; subtitle: string; mark: string; stats: Record<Stat, number> }> = {
@@ -26,10 +27,10 @@ export const scenes: Scene[] = [
   { id: 'gate', title: '숲은 이름을 기억한다', place: '한양 성문 밖', text: '요괴가 민심을 어지럽히는 조선. 포도청에서 사령패를 받은 당신은 사라진 누이를 찾아 북악산에 들었다. 편지에는 단 한 문장이 남아 있었다. “숲이 네 이름을 부르면, 대답하지 마.”\n\n낡은 이정표 너머, 안개 속에서 작은 등불이 흔들린다. 당신은 열흘 안에 숲의 심장에 도착해야 한다.', choices: [
     { label: '등불을 따라간다', hint: '낯선 이를 만난다', success: { text: '등불의 주인은 길 잃은 아이였다. 아이는 당신의 손에 은빛 씨앗을 쥐여준다.', flag: 'child', relics: 1 } },
     { label: '편지의 숨은 문양을 읽는다', hint: '지혜 판정 · 난이도 5', stat: 'wisdom', difficulty: 5, success: { text: '편지를 달빛에 비추자 숨은 지도가 드러난다. 누이는 이 길을 이미 걸었다.', flag: 'map', relics: 1 }, failure: { text: '문양이 손끝을 태운다. 오래된 마법의 흔적만 알아냈다.', hp: -3 } },
-    { label: '성문 밖 도깨비와 맞선다', hint: '턴제 전투 · 환도와 전리품 획득', success: { text: '덤불 사이에서 낡은 여행자의 주머니를 찾았다. 가시에 긁힌 손이 쓰리다.', hp: -2, gold: 6 } },
+    { label: '성문 밖 도깨비와 맞선다', hint: '자동 전투 · 환도와 전리품 획득', success: { text: '덤불 사이에서 낡은 여행자의 주머니를 찾았다. 가시에 긁힌 손이 쓰리다.', hp: -2, gold: 6 } },
   ] },
   { id: 'bridge', title: '다리 아래의 목소리', place: '북악산 구름다리', text: '썩은 나무다리가 골짜기를 가로지른다. 아래에서는 당신과 똑같은 목소리가 도움을 청한다.\n\n“내가 떨어졌어. 나를 두고 가지 마.”', choices: [
-    { label: '원귀를 물리치고 다리를 건넌다', hint: '턴제 전투 · 삼재 부적 획득', stat: 'strength', difficulty: 6, success: { text: '끌어올린 것은 목소리를 훔치는 작은 정령이었다. 정령은 빚을 기억하겠다고 약속한다.', relics: 1, flag: 'spirit' }, failure: { text: '밧줄이 끊어졌다. 절벽에 부딪힌 어깨가 욱신거린다.', hp: -5 } },
+    { label: '원귀를 물리치고 다리를 건넌다', hint: '자동 전투 · 삼재 부적 획득', stat: 'strength', difficulty: 6, success: { text: '끌어올린 것은 목소리를 훔치는 작은 정령이었다. 정령은 빚을 기억하겠다고 약속한다.', relics: 1, flag: 'spirit' }, failure: { text: '밧줄이 끊어졌다. 절벽에 부딪힌 어깨가 욱신거린다.', hp: -5 } },
     { label: '목소리를 무시하고 건넌다', hint: '체력 2 소모', success: { text: '다리가 무너지는 순간 반대편으로 뛰었다. 당신의 목소리가 한동안 계곡에 남았다.', hp: -2 } },
   ] },
   { id: 'merchant', title: '그녀가 파는 것은 내일', place: '달빛 장터', text: '숲 한가운데 찻잔을 늘어놓은 노파가 있다. 찻잔마다 아직 일어나지 않은 날의 풍경이 비친다.\n\n“살아 돌아갈 만큼만 욕심내렴.”', choices: [
@@ -39,7 +40,7 @@ export const scenes: Scene[] = [
     { label: '다음 길만 물어본다', hint: '비용 없이 지나간다', success: { text: '“네가 잃어버린 것은 길이 아니야.” 노파는 대답 대신 북쪽을 가리켰다.' } },
   ] },
   { id: 'wolf', title: '잿빛 털의 수호자', place: '북악산 산자락', text: '수백 년 묵은 삵이 길을 막는다. 가슴에는 부러진 창이 박혀 있다. 으르렁거림 사이로 인간의 숨소리가 들린다.', choices: [
-    { label: '묵은 삵과 맞서 싸운다', hint: '턴제 전투 · 귀문검 획득', stat: 'strength', difficulty: 6, success: { text: '묵은 삵는 빛으로 흩어지고, 창끝만 남았다. 창에는 누이의 이름이 새겨져 있다.', relics: 1, gold: 3 }, failure: { text: '발톱이 팔을 스쳤다. 간신히 나무 사이로 몸을 숨긴다.', hp: -6 } },
+    { label: '묵은 삵과 맞서 싸운다', hint: '자동 전투 · 귀문검 획득', stat: 'strength', difficulty: 6, success: { text: '묵은 삵는 빛으로 흩어지고, 창끝만 남았다. 창에는 누이의 이름이 새겨져 있다.', relics: 1, gold: 3 }, failure: { text: '발톱이 팔을 스쳤다. 간신히 나무 사이로 몸을 숨긴다.', hp: -6 } },
     { label: '상처에 손을 뻗는다', hint: '의지 판정 · 난이도 5', stat: 'spirit', difficulty: 5, success: { text: '창을 뽑자 묵은 삵의 눈이 부드러워졌다. 숲의 수호자가 당신을 기억한다.', flag: 'wolf', hp: 3 }, failure: { text: '겁에 질린 묵은 삵가 손을 물었다. 그래도 창은 빠졌다.', hp: -4, flag: 'wolf' } },
     { label: '먹을 것을 놓고 돌아간다', hint: '금 2 · 안전하게 통과', cost: 2, success: { text: '묵은 삵가 고개를 숙인 사이 길을 돌아 나왔다.' } },
   ] },
@@ -62,7 +63,7 @@ export const scenes: Scene[] = [
   ] },
 ];
 export function newRun(role: Role, seed = Date.now()): Run {
-  return { role, seed: seed >>> 0, day: 1, hero: { ...roles[role].stats, hp: 32, maxHp: 32, gold: 8, relics: 0 }, sceneId: 'gate', visited: ['gate'], flags: [], journal: ['사령패와 누이의 편지를 품고 북악산으로 들어갔다.'], result: null, ending: null, combat: null, progression: initialProgression() };
+  return { role, seed: seed >>> 0, day: 1, hero: { ...roles[role].stats, hp: 32, maxHp: 32, gold: 8, relics: 0 }, sceneId: 'gate', visited: ['gate'], flags: [], journal: ['사령패와 누이의 편지를 품고 북악산으로 들어갔다.'], result: null, ending: null, combat: null, progression: initialProgression(), battleReport: null };
 }
 export function initialProgression(): Progression { return { level: 1, exp: 0, potions: 2, energy: 3, inventory: [], weapon: null, armor: null }; }
 function random(seed: number): [number, number] { const next = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return [next / 4294967296, next]; }
@@ -73,7 +74,7 @@ export function currentScene(run: Run): Scene {
     { label: '숲에 묶인 모든 이름을 풀어준다', hint: `유물 ${run.flags.includes('truth') ? 2 : 3}개 필요`, cost: undefined, success: { text: '기억들이 별처럼 흩어진다.' } },
     { label: '누이의 손을 잡고 숲을 떠난다', hint: help ? '숲의 친구가 탈출을 돕는다' : '의지 판정 · 난이도 6', stat: help ? undefined : 'spirit', difficulty: 6, success: { text: '다시는 손을 놓지 않는다.' }, failure: { text: '숲은 아직 당신을 놓아주지 않는다.', hp: -5 } },
     { label: '누이와 함께 숲의 지기가 된다', hint: '숲에 남는 결말', success: { text: '이제 당신이 길 잃은 이의 등불이 된다.' } },
-    { label: '이름을 삼키는 대감신과 맞선다', hint: '마지막 요괴 전투 · 승리하면 모두를 해방', success: { text: '사령패가 붉게 빛난다.' } },
+    { label: '이름을 삼키는 대감신과 맞선다', hint: '자동 보스 전투 · 승리하면 모두를 해방', success: { text: '사령패가 붉게 빛난다.' } },
   ] };
 }
 export function disabledReason(run: Run, index: number): string | null {
@@ -85,7 +86,7 @@ export function disabledReason(run: Run, index: number): string | null {
 }
 export function choose(run: Run, index: number): Run {
   if (run.result || run.ending || run.combat || disabledReason(run, index)) return run;
-  if ((run.sceneId === 'wolf' && index === 0) || (run.sceneId === 'gate' && index === 2) || (run.sceneId === 'bridge' && index === 0) || (run.sceneId === 'heart' && index === 3)) return beginCombat(run);
+  if ((run.sceneId === 'wolf' && index === 0) || (run.sceneId === 'gate' && index === 2) || (run.sceneId === 'bridge' && index === 0) || (run.sceneId === 'heart' && index === 3)) return autoBattle(beginCombat(run));
   const scene = currentScene(run), choice = scene.choices[index];
   const [roll, seed] = random(run.seed), dice = Math.floor(roll * 6) + 1;
   const success = !choice.stat || dice + run.hero[choice.stat] >= (choice.difficulty ?? 5);
@@ -102,7 +103,7 @@ export function advance(run: Run): Run {
   const fresh = scenes.filter(s => s.id !== 'gate' && !run.visited.includes(s.id));
   const pool = fresh.length ? fresh : scenes.filter(s => s.id !== 'gate' && s.id !== run.sceneId);
   const sceneId = run.day >= 9 ? 'heart' : pool[Math.floor(roll * pool.length)].id;
-  return { ...run, day: run.day + 1, seed, sceneId, visited: [...run.visited, sceneId], result: null };
+  return { ...run, day: run.day + 1, seed, sceneId, visited: [...run.visited, sceneId], result: null, battleReport: null };
 }
 export function archive(save: Save, run: Run): Save {
   if (!run.ending) return { ...save, run };
@@ -124,6 +125,9 @@ export function decodeSave(raw: string | null): Save {
       const r = s.run;
       r.progression ??= initialProgression();
       r.combat ??= null;
+      r.battleReport ??= null;
+      const report = r.battleReport;
+      if (report && (typeof report.enemy !== 'string' || !['victory', 'defeat', 'retreat'].includes(report.outcome) || !['rounds', 'startHp', 'endHp', 'gold', 'exp', 'levels'].every(k => Number.isInteger(report[k]) && report[k] >= 0) || !Array.isArray(report.items) || !report.items.every((id: unknown) => typeof id === 'string' && Object.hasOwn(equipment, id)) || !Array.isArray(report.log) || !report.log.every((line: unknown) => typeof line === 'string'))) return empty;
       const p = r.progression;
       if (!p || !['level', 'exp', 'potions', 'energy'].every(k => Number.isInteger(p[k]) && p[k] >= 0) || p.level < 1 || p.energy > 3 || !Array.isArray(p.inventory) || !p.inventory.every((id: unknown) => typeof id === 'string' && Object.hasOwn(equipment, id)) || !['weapon', 'armor'].every(slot => p[slot] === null || (p.inventory.includes(p[slot]) && equipment[p[slot]]?.slot === slot))) return empty;
       if (r.combat && (!['hp', 'maxHp', 'attack', 'turn'].every(k => Number.isInteger(r.combat[k]) && r.combat[k] > 0) || r.combat.hp > r.combat.maxHp || !['strike', 'heavy', 'recover'].includes(r.combat.intent) || typeof r.combat.enemy !== 'string' || typeof r.combat.boss !== 'boolean' || !Array.isArray(r.combat.log) || !r.combat.log.every((line: unknown) => typeof line === 'string') || r.result || r.ending)) return empty;
@@ -199,11 +203,31 @@ export function battleTurn(run: Run, action: BattleAction): Run {
   }
   if (hero.hp === 0) return { ...run, seed, hero, progression, combat: null, result: log.join('\n'), ending: '안개에 남은 발자국', journal: [...run.journal, `${run.day}일 · ${combat.enemy}에게 쓰러졌다.\n${[...combat.log, ...log].join('\n')}`] };
   const roll = draw(); combat.intent = roll < 0.35 ? 'heavy' : roll < 0.55 ? 'recover' : 'strike';
-  combat.turn++; combat.log = [...combat.log, ...log].slice(-24);
+  combat.turn++; combat.log = [...combat.log, ...log].slice(-200);
   return { ...run, seed, hero, progression, combat };
 }
 export function equip(run: Run, id: string): Run {
   if (run.combat || run.ending || !run.progression.inventory.includes(id) || !equipment[id]) return run;
   const slot = equipment[id].slot;
   return { ...run, progression: { ...run.progression, [slot]: run.progression[slot] === id ? null : id } };
+}
+
+/** Resolve the whole battle once, using the same seeded rules as the turn engine. */
+export function autoBattle(run: Run): Run {
+  if (!run.combat || run.result || run.ending) return run;
+  const start = run, enemy = run.combat.enemy;
+  let next = run, rounds = 0;
+  while (next.combat && rounds < 60) {
+    const action: BattleAction = next.hero.hp <= 12 && next.progression.potions > 0 ? 'potion'
+      : next.progression.energy >= 2 ? 'skill'
+      : next.combat.intent === 'heavy' ? 'guard' : 'attack';
+    next = battleTurn(next, action); rounds++;
+  }
+  if (next.combat) {
+    const log = [...next.combat.log, '싸움이 길어져 물러났다. 보상은 없다.'];
+    next = { ...next, ending: next.combat.boss ? '닿지 못한 손' : null, combat: null, result: log.join('\n'), journal: [...next.journal, `${next.day}일 · ${enemy}\n${log.join('\n')}`] };
+  }
+  const victory = next.hero.gold > start.hero.gold;
+  const log = next.journal[next.journal.length - 1].split('\n').slice(1);
+  return { ...next, battleReport: { enemy, outcome: next.hero.hp === 0 ? 'defeat' : victory ? 'victory' : 'retreat', rounds: start.combat!.turn - 1 + rounds, startHp: start.hero.hp, endHp: next.hero.hp, gold: next.hero.gold - start.hero.gold, exp: victory ? start.combat!.boss ? 12 : 6 : 0, items: next.progression.inventory.filter(id => !start.progression.inventory.includes(id)), levels: next.progression.level - start.progression.level, log }, result: log.join('\n') };
 }

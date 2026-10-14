@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "사령패 — 잔향의 숲",
+    "name": "이매망량의 주인 — 산군",
     "slug": "mos-adventure",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "ios": {
@@ -13,7 +13,7 @@
       "package": "com.thypsysigh.mos"
     },
     "web": {
-      "name": "사령패 — 잔향의 숲",
+      "name": "이매망량의 주인 — 산군",
       "bundler": "metro"
     },
     "plugins": [

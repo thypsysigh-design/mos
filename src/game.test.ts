@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { advance, archive, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
+import { advance, archive, autoBattle, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
 
 test('same seed and choices produce the same adventure', () => {
   let a = newRun('scholar', 123), b = newRun('scholar', 123);
@@ -120,4 +120,34 @@ test('mid-combat save round-trips and older saves migrate without losing story',
   assert.equal(restored.run?.day, 1);
   assert.equal(restored.run?.progression.potions, 2);
   assert.equal(decodeSave(JSON.stringify({ ...save, run: { ...base, combat: { ...base.combat, intent: 'invalid' } } })).run, null);
+});
+
+test('choosing combat automatically resolves it and exposes full results exactly once', () => {
+  const base = newRun('ranger', 12);
+  const won = choose(base, 2);
+  assert.equal(won.combat, null);
+  assert.equal(won.battleReport?.outcome, 'victory');
+  assert.equal(won.battleReport?.gold, 5);
+  assert.equal(won.battleReport?.exp, 6);
+  assert.deepEqual(won.battleReport?.items, ['sword']);
+  assert.ok(won.battleReport!.log.some(line => line.includes('1번째 턴')));
+  assert.ok(won.battleReport!.log.some(line => line.includes('승리!')));
+  assert.equal(autoBattle(won), won);
+  assert.equal(choose(won, 2), won);
+  assert.equal(advance(won).battleReport, null);
+  assert.deepEqual(decodeSave(JSON.stringify({version: 1, run: won, records: []})).run, won);
+});
+
+test('automatic defeats and boss victories retain their result report at the ending', () => {
+  const base = beginCombat(newRun('ranger', 1));
+  const weak = { ...base, hero: { ...base.hero, hp: 1 }, progression: { ...base.progression, potions: 0, energy: 0 } };
+  const dead = autoBattle(weak);
+  assert.equal(dead.ending, '안개에 남은 발자국');
+  assert.equal(dead.battleReport?.outcome, 'defeat');
+  assert.equal(dead.battleReport?.gold, 0);
+  const boss = beginCombat({ ...newRun('monk', 1), sceneId: 'heart', day: 10 });
+  const won = autoBattle({ ...boss, combat: { ...boss.combat!, hp: 1 } });
+  assert.equal(won.ending, '모든 이름의 새벽');
+  assert.equal(won.battleReport?.outcome, 'victory');
+  assert.equal(won.battleReport?.exp, 12);
 });
