@@ -12,12 +12,12 @@ export type Run = { role: Role; day: number; seed: number; hero: Hero; sceneId: 
 export type RecordEntry = { id: string; role: Role; ending: string; days: number; relics: number };
 export type Save = { version: 1; run: Run | null; records: RecordEntry[] };
 export const roles: Record<Role, { name: string; subtitle: string; description: string; mark: string; range: AttackRange; attackScale: number; stats: Record<Stat, number> }> = {
-  warrior: { name: '역사', subtitle: '철벽 강타 · 무 3 · 체 4', description: '근거리 공격 전문 · 높은 방어력', mark: '力', range: 'melee', attackScale: 1, stats: { mu: 3, ji: 1, de: 1, che: 4, un: 1 } },
-  archer: { name: '궁사', subtitle: '억제 사격 · 무 3 · 덕 3', description: '원거리 공격 전문 · 적군 약화', mark: '弓', range: 'ranged', attackScale: 1, stats: { mu: 3, ji: 1, de: 3, che: 1, un: 2 } },
-  swordsman: { name: '검사', subtitle: '연속 베기 · 무 4 · 덕 2', description: '근거리 공격 전문', mark: '劍', range: 'melee', attackScale: 1, stats: { mu: 4, ji: 1, de: 2, che: 2, un: 1 } },
-  sorcerer: { name: '주술사', subtitle: '주박 · 지 4 · 덕 2', description: '약한 원거리 공격 · 아군 강화·적군 약화', mark: '符', range: 'ranged', attackScale: 0.55, stats: { mu: 1, ji: 4, de: 2, che: 2, un: 1 } },
-  medium: { name: '무격', subtitle: '강신무 · 지 3 · 체 3', description: '약한 근·원거리 공격 · 아군 강화·적군 약화', mark: '巫', range: 'mixed', attackScale: 0.55, stats: { mu: 1, ji: 3, de: 2, che: 3, un: 1 } },
-  healer: { name: '활사', subtitle: '생명의 굿 · 지 3 · 체 3', description: '약한 근·원거리 공격 · 회복·아군 강화·적군 약화', mark: '生', range: 'mixed', attackScale: 0.45, stats: { mu: 1, ji: 3, de: 2, che: 3, un: 1 } },
+  warrior: { name: '역사', subtitle: '철벽 강타', description: '근거리 공격 전문 · 높은 방어력', mark: '力', range: 'melee', attackScale: 1, stats: { mu: 5, ji: 3, de: 1, che: 5, un: 1 } },
+  archer: { name: '궁사', subtitle: '억제 사격', description: '원거리 공격 전문 · 적군 약화', mark: '弓', range: 'ranged', attackScale: 1, stats: { mu: 5, ji: 1, de: 5, che: 1, un: 3 } },
+  swordsman: { name: '검사', subtitle: '연속 베기', description: '근거리 공격 전문', mark: '劍', range: 'melee', attackScale: 1, stats: { mu: 3, ji: 3, de: 3, che: 3, un: 3 } },
+  sorcerer: { name: '주술사', subtitle: '주박', description: '약한 원거리 공격 · 아군 강화·적군 약화', mark: '符', range: 'ranged', attackScale: 0.55, stats: { mu: 2, ji: 5, de: 5, che: 2, un: 1 } },
+  medium: { name: '무격', subtitle: '강신무', description: '약한 근·원거리 공격 · 아군 강화·적군 약화', mark: '巫', range: 'mixed', attackScale: 0.55, stats: { mu: 1, ji: 5, de: 3, che: 1, un: 5 } },
+  healer: { name: '활사', subtitle: '생명의 굿', description: '약한 근·원거리 공격 · 회복·아군 강화·적군 약화', mark: '生', range: 'mixed', attackScale: 0.45, stats: { mu: 1, ji: 4, de: 1, che: 5, un: 4 } },
 };
 const legacyRoles: Record<string, Role> = { ranger: 'swordsman', scholar: 'sorcerer', wanderer: 'archer', monk: 'healer' };
 export const equipment: Record<string, { name: string; slot: 'weapon' | 'armor'; bonus: number; description: string }> = {

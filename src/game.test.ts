@@ -279,3 +279,29 @@ test('legacy professions and mid-combat status fields migrate while retaining re
   assert.equal(restored.run!.combat!.playerBuff, 0);
   assert.equal(restored.records[0].role, 'healer');
 });
+
+test('new characters start with the supplied class stats and full class-dependent health', () => {
+  const expected: [Role, number[], number][] = [
+    ['warrior', [5, 3, 1, 5, 1], 40],
+    ['archer', [5, 1, 5, 1, 3], 24],
+    ['swordsman', [3, 3, 3, 3, 3], 32],
+    ['sorcerer', [2, 5, 5, 2, 1], 28],
+    ['medium', [1, 5, 3, 1, 5], 24],
+    ['healer', [1, 4, 1, 5, 4], 40],
+  ];
+  for (const [role, stats, health] of expected) {
+    const run = newRun(role, 100);
+    assert.deepEqual([run.hero.mu, run.hero.ji, run.hero.de, run.hero.che, run.hero.un], stats);
+    assert.equal(run.hero.hp, health);
+    assert.equal(run.hero.maxHp, health);
+    run.hero.mu++;
+    assert.equal(newRun(role, 101).hero.mu, stats[0], 'one character must not mutate class defaults');
+  }
+});
+
+test('updating class defaults does not replace an existing five-stat character', () => {
+  const run = newRun('swordsman', 55);
+  run.hero = { ...run.hero, mu: 4, ji: 1, de: 2, che: 2, un: 1, hp: 18, maxHp: 28 };
+  const restored = decodeSave(JSON.stringify({ version: 1, run, records: [] }));
+  assert.deepEqual(restored.run, run);
+});
