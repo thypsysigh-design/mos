@@ -2,7 +2,7 @@
   "expo": {
     "name": "이매망량의 주인 — 산군",
     "slug": "mos-adventure",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "ios": {
