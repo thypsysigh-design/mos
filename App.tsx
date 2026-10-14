@@ -57,11 +57,18 @@ export default function App() {
   const scene = run ? currentScene(run) : null;
   return <SafeAreaProvider><SafeAreaView style={styles.safe}>
     <StatusBar style="light" />
-    {screen !== 'index' && <View style={styles.header}><View><Text style={styles.eyebrow}>JOSEON / YOKAI HUNTER</Text><Text style={styles.brand}>이매망량의 주인 <Text style={{ color: colors.gold }}>✧</Text></Text></View><Text style={styles.edition}>부제{ '\n' }산군</Text></View>}
-    {error && <View style={styles.error}><Text style={{ color: colors.danger, lineHeight: 21 }}>{error}</Text><Pressable accessibilityRole="button" onPress={() => { if (!loaded) void load(); else setSave(s => ({ ...s })); }}><Text style={{ color: colors.gold, paddingTop: 8 }}>다시 시도 ↻</Text></Pressable></View>}
+    {screen !== 'index' && <View style={styles.header}><View><Text style={styles.eyebrow}>JOSEON / YOKAI HUNTER</Text>
+      <Text style={styles.brand}>이매망량의 주인<Text style={{ color: colors.gold }}>✧</Text></Text></View>
+      <Text style={styles.edition}>부제{ '\n' }산군</Text></View>}
+    {error && <View style={styles.error}><Text style={{ color: colors.danger, lineHeight: 21 }}>{error}</Text>
+      <Pressable accessibilityRole="button" onPress={() => { if (!loaded) void load(); else setSave(s => ({ ...s })); }}><Text style={{ color: colors.gold, paddingTop: 8 }}>다시 시도 ↻</Text></Pressable></View>}
     {!loaded ? <View style={styles.loading}>{readFailed ? <Button title="기록 다시 불러오기" onPress={() => void load()} /> : <><ActivityIndicator color={colors.gold} /><Text style={styles.muted}>숲의 기억을 불러오는 중…</Text></>}</View> : <>
     <ScrollView ref={scroll} contentContainerStyle={[styles.content, screen === 'index' && styles.indexContent]}>
-      {screen === 'index' && <View style={styles.indexCard}><Text accessibilityRole="header" style={styles.indexTitle}>이매망량의 주인</Text><Text style={styles.indexSubtitle}>산군</Text><View style={{ width: '100%', marginTop: 42 }}><Button title="접속" onPress={() => { setScreen('prologue'); setTab('adventure'); }} /></View></View>}
+      {screen === 'index' && <View style={styles.indexCard}><Text accessibilityRole="header" style={styles.indexTitle}>이매망량의 주인</Text>
+        <Text style={styles.indexSubtitle}>산군<br><br>
+        이름을부른다해서응해서는안된다<br>
+        답을하는순간산군에게홀려창귀가될것이다</Text>
+        <View style={{ width: '100%', marginTop: 42 }}><Button title="시작" onPress={() => { setScreen('prologue'); setTab('adventure'); }} /></View></View>}
       {screen === 'prologue' && <>
 
         <Text style={styles.eyebrow}>PROLOGUE / 여정의 시작</Text><Text style={styles.title}>요괴가 숨 쉬는{ '\n' }조선의 밤으로.</Text>
