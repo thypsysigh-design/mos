@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { advance, archive, autoBattle, combatStats, maxHealth, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
+import { emptyAllocation, validAllocation, advance, archive, autoBattle, combatStats, maxHealth, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
 
 test('same seed and choices produce the same adventure', () => {
   let a = newRun('sorcerer', 123), b = newRun('sorcerer', 123);
@@ -304,4 +304,31 @@ test('updating class defaults does not replace an existing five-stat character',
   run.hero = { ...run.hero, mu: 4, ji: 1, de: 2, che: 2, un: 1, hp: 18, maxHp: 28 };
   const restored = decodeSave(JSON.stringify({ version: 1, run, records: [] }));
   assert.deepEqual(restored.run, run);
+});
+
+test('character creation adds exactly 15 points to the selected class and recalculates full health', () => {
+  const allocation = { mu: 4, ji: 3, de: 2, che: 5, un: 1 };
+  for (const role of Object.keys(roles) as Role[]) {
+    const base = newRun(role, 100), created = newRun(role, 101, allocation);
+    assert.equal(created.hero.mu, base.hero.mu + 4);
+    assert.equal(created.hero.ji, base.hero.ji + 3);
+    assert.equal(created.hero.de, base.hero.de + 2);
+    assert.equal(created.hero.che, base.hero.che + 5);
+    assert.equal(created.hero.un, base.hero.un + 1);
+    assert.equal(created.hero.maxHp, base.hero.maxHp + 20);
+    assert.equal(created.hero.hp, created.hero.maxHp);
+    assert.deepEqual(newRun(role, 102).hero, base.hero, 'class defaults must remain unchanged');
+    assert.deepEqual(decodeSave(JSON.stringify({ version: 1, run: created, records: [] })).run, created);
+  }
+});
+
+test('allocation permits specializing in one stat and rejects partial, excessive or invalid points', () => {
+  assert.equal(validAllocation(emptyAllocation()), false);
+  const specialized = { ...emptyAllocation(), un: 15 };
+  assert.equal(validAllocation(specialized), true);
+  assert.equal(newRun('swordsman', 1, specialized).hero.un, 18);
+  for (const invalid of [emptyAllocation(), { ...specialized, un: 14 }, { ...specialized, un: 16 }, { ...specialized, mu: -1, un: 16 }, { ...specialized, mu: 0.5, un: 14.5 }, { ...specialized, un: NaN }]) {
+    assert.equal(validAllocation(invalid), false);
+    assert.throws(() => newRun('swordsman', 1, invalid), /15포인트/);
+  }
 });

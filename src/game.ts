@@ -1,6 +1,13 @@
 export type Role = 'warrior' | 'archer' | 'swordsman' | 'sorcerer' | 'medium' | 'healer';
 export type AttackRange = 'melee' | 'ranged' | 'mixed';
 export type Stat = 'mu' | 'ji' | 'de' | 'che' | 'un';
+export type StatAllocation = Record<Stat, number>;
+export const CREATION_POINTS = 15;
+export function emptyAllocation(): StatAllocation { return { mu: 0, ji: 0, de: 0, che: 0, un: 0 }; }
+export function allocationTotal(allocation: StatAllocation): number { return allocation.mu + allocation.ji + allocation.de + allocation.che + allocation.un; }
+export function validAllocation(allocation: StatAllocation): boolean {
+  return ['mu', 'ji', 'de', 'che', 'un'].every(key => Number.isInteger(allocation[key as Stat]) && allocation[key as Stat] >= 0) && allocationTotal(allocation) === CREATION_POINTS;
+}
 export type Hero = { hp: number; maxHp: number; gold: number; relics: number } & Record<Stat, number>;
 export type Choice = { label: string; hint: string; stat?: Stat; difficulty?: number; cost?: number; success: Effect; failure?: Effect };
 type Effect = { text: string; hp?: number; gold?: number; relics?: number; flag?: string; potions?: number };
@@ -81,8 +88,11 @@ export const scenes: Scene[] = [
     { label: '그들의 이야기를 듣는다', hint: '체력 2 회복 · 금 3 획득', success: { text: '이름 하나하나를 기억해 주자 유령들은 웃었다. 오래된 동전이 무릎 위에 남았다.', hp: 2, gold: 3 } },
   ] },
 ];
-export function newRun(role: Role, seed = Date.now()): Run {
-  return { role, seed: seed >>> 0, day: 1, hero: { ...roles[role].stats, hp: maxHealth(roles[role].stats.che, 1), maxHp: maxHealth(roles[role].stats.che, 1), gold: 8, relics: 0 }, sceneId: 'gate', visited: ['gate'], flags: [], journal: ['사령패와 누이의 편지를 품고 북악산으로 들어갔다.'], result: null, ending: null, combat: null, progression: initialProgression(), battleReport: null };
+export function newRun(role: Role, seed = Date.now(), allocation?: StatAllocation): Run {
+  if (allocation && !validAllocation(allocation)) throw new Error('추가 스탯 15포인트를 모두 분배해야 합니다.');
+  const stats = { ...roles[role].stats };
+  if (allocation) for (const key of Object.keys(stats) as Stat[]) stats[key] += allocation[key];
+  return { role, seed: seed >>> 0, day: 1, hero: { ...stats, hp: maxHealth(stats.che, 1), maxHp: maxHealth(stats.che, 1), gold: 8, relics: 0 }, sceneId: 'gate', visited: ['gate'], flags: [], journal: ['사령패와 누이의 편지를 품고 북악산으로 들어갔다.'], result: null, ending: null, combat: null, progression: initialProgression(), battleReport: null };
 }
 export function initialProgression(): Progression { return { level: 1, exp: 0, potions: 2, energy: 3, inventory: [], weapon: null, armor: null }; }
 function random(seed: number): [number, number] { const next = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return [next / 4294967296, next]; }

@@ -3,8 +3,9 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { advance, archive, autoBattle, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, statNames, type Role, type Save, type Stat } from './src/game';
+import { emptyAllocation, validAllocation, advance, archive, autoBattle, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, statNames, type Role, type Save, type Stat } from './src/game';
 
+import { StatAllocationPanel } from './src/StatAllocationPanel';
 import { BattleResult, EquipmentPanel } from './src/CombatPanel';
 
 const STORAGE = 'mos-adventure.v1';
@@ -16,8 +17,8 @@ const endings: Record<string, string> = {
   '닿지 못한 손': '뻗은 손끝에서 누이의 모습이 안개처럼 흩어진다. 당신은 숲 밖으로 돌아왔다. 편지에는 새로운 문장이 나타나 있다. “다시 만나.”',
   '안개에 남은 발자국': '더는 발걸음을 옮길 수 없다. 숲이 요괴가 숨 쉬는 조용히 부른다. 다른 모험에서는, 다른 길을 찾을 수 있을 것이다.',
 };
-function Button({ title, onPress, secondary = false }: { title: string; onPress: () => void; secondary?: boolean }) {
-  return <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.button, secondary && styles.secondary, pressed && { opacity: 0.7 }]}><Text style={[styles.buttonText, secondary && { color: colors.gold }]}>{title}</Text></Pressable>;
+function Button({ title, onPress, secondary = false, disabled = false }: { title: string; onPress: () => void; secondary?: boolean; disabled?: boolean }) {
+  return <Pressable accessibilityRole="button" accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.button, secondary && styles.secondary, disabled && { opacity: 0.4 }, pressed && { opacity: 0.7 }]}><Text style={[styles.buttonText, secondary && { color: colors.gold }]}>{title}</Text></Pressable>;
 }
 const colors = { bg: '#1a120d', panel: '#2b2016', gold: '#d4b476', text: '#efe5ce', muted: '#b7a384', border: '#59472f', danger: '#e8a293' };
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
   const [tab, setTab] = useState<'adventure' | 'journal' | 'records' | 'equipment'>('adventure');
   const [screen, setScreen] = useState<'index' | 'prologue' | 'game'>('index');
   const [role, setRole] = useState<Role>('swordsman');
+  const [allocation, setAllocation] = useState(emptyAllocation);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
   const queue = useRef(Promise.resolve());
   const scroll = useRef<ScrollView>(null);
@@ -48,7 +50,7 @@ export default function App() {
     queue.current = queue.current.then(() => AsyncStorage.setItem(STORAGE, JSON.stringify(save))).then(() => setError(null)).catch(() => setError('기기 저장에 실패했습니다. 앱을 닫기 전에 저장을 다시 시도해 주세요.'));
   }, [save, loaded]);
   useEffect(() => { scroll.current?.scrollTo({ y: 0, animated: false }); }, [save.run?.sceneId, tab, screen]);
-  function start() { setSave(s => ({ ...s, run: newRun(role) })); setTab('adventure'); setScreen('game'); }
+  function start() { if (!validAllocation(allocation)) return; setSave(s => ({ ...s, run: newRun(role, Date.now(), allocation) })); setAllocation(emptyAllocation()); setTab('adventure'); setScreen('game'); }
   function select(index: number) { setSave(s => s.run ? archive(s, choose(s.run, index)) : s); }
   function wear(id: string) { setSave(s => s.run ? { ...s, run: equip(s.run, id) } : s); }
   function next() { setSave(s => s.run ? { ...s, run: advance(s.run) } : s); }
@@ -75,7 +77,7 @@ export default function App() {
         <Text style={styles.body}>포도청에서 받은 사령패 한 장.{ '\n' }누이를 삼킨 북악산의 안개.{ '\n' }사냥과 선택으로 써 내려갈 열흘의 기록.</Text>
         {!run && <><View style={styles.sectionHeading}><Text style={styles.sectionTitle}>어떤 사냥꾼이 되시겠습니까?</Text><Text style={styles.muted}>여섯 가지 직업</Text></View>
         {(Object.keys(roles) as Role[]).map(key => <Pressable key={key} accessibilityRole="radio" accessibilityState={{ selected: role === key }} accessibilityLabel={`${roles[key].name}, ${roles[key].subtitle}`} onPress={() => setRole(key)} style={[styles.role, role === key && styles.selected]}><Text style={styles.roleMark}>{roles[key].mark}</Text><View style={{ flex: 1 }}><Text style={styles.roleName}>{roles[key].name}</Text><Text style={styles.muted}>{roles[key].subtitle}</Text><Text style={styles.muted}>{(Object.keys(statNames) as Stat[]).map(stat => `${statNames[stat]} ${roles[key].stats[stat]}`).join(' · ')}</Text><Text style={styles.muted}>{roles[key].description}</Text></View><Text style={{ color: colors.gold }}>{role === key ? '●' : '○'}</Text></Pressable>)}
-        <Button title="게임 시작" onPress={start} /></>}
+        <StatAllocationPanel role={role} allocation={allocation} onChange={setAllocation} /><Button title="게임 시작" onPress={start} disabled={!validAllocation(allocation)} /></>}
         {run && <><Text style={styles.body}>저장된 여정이 있습니다. {run.day}일째의 이야기를 이어갈 수 있습니다.</Text><Button title="모험 이어하기" onPress={() => { setScreen('game'); setTab('adventure'); }} /></>}
         <Button title="타이틀로 돌아가기" secondary onPress={() => setScreen('index')} /><Text style={styles.footnote}>한 번의 모험은 약 10분 · 진행은 자동 저장됩니다.{ '\n' }자동 전투 · 장비 획득 · 경험치 성장 · 다섯 가지 결말</Text>
       </>}
