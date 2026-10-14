@@ -65,8 +65,8 @@ export default function App() {
     {!loaded ? <View style={styles.loading}>{readFailed ? <Button title="기록 다시 불러오기" onPress={() => void load()} /> : <><ActivityIndicator color={colors.gold} /><Text style={styles.muted}>숲의 기억을 불러오는 중…</Text></>}</View> : <>
     <ScrollView ref={scroll} contentContainerStyle={[styles.content, screen === 'index' && styles.indexContent]}>
       {screen === 'index' && <View style={styles.indexCard}><Text accessibilityRole="header" style={styles.indexTitle}>이매망량의 주인</Text>
-        <Text style={styles.indexSubtitle}>산군<br><br>
-        이름을부른다해서응해서는안된다<br>
+        <Text style={styles.indexSubtitle}>산군{ '\n' }{ '\n' }
+        이름을부른다해서응해서는안된다{ '\n' }
         답을하는순간산군에게홀려창귀가될것이다</Text>
         <View style={{ width: '100%', marginTop: 42 }}><Button title="시작" onPress={() => { setScreen('prologue'); setTab('adventure'); }} /></View></View>}
       {screen === 'prologue' && <>
