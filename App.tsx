@@ -63,7 +63,7 @@ export default function App() {
     <ScrollView ref={scroll} contentContainerStyle={[styles.content, screen === 'index' && styles.indexContent]}>
       {screen === 'index' && <View style={styles.indexCard}><Text accessibilityRole="header" style={styles.indexTitle}>이매망량의 주인</Text><Text style={styles.indexSubtitle}>산군</Text><View style={{ width: '100%', marginTop: 42 }}><Button title="접속" onPress={() => { setScreen('prologue'); setTab('adventure'); }} /></View></View>}
       {screen === 'prologue' && <>
-        
+
         <Text style={styles.eyebrow}>PROLOGUE / 여정의 시작</Text><Text style={styles.title}>요괴가 숨 쉬는{ '\n' }조선의 밤으로.</Text>
         <Text style={styles.body}>포도청에서 받은 사령패 한 장.{ '\n' }누이를 삼킨 북악산의 안개.{ '\n' }사냥과 선택으로 써 내려갈 열흘의 기록.</Text>
         {!run && <><View style={styles.sectionHeading}><Text style={styles.sectionTitle}>어떤 사냥꾼이 되시겠습니까?</Text><Text style={styles.muted}>네 가지 직업</Text></View>
