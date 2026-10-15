@@ -1,0 +1,1814 @@
+[
+  {
+    "id": "common.title",
+    "group": "common",
+    "context": "게임 제목",
+    "notes": ""
+  },
+  {
+    "id": "common.subtitle",
+    "group": "common",
+    "context": "게임 부제",
+    "notes": ""
+  },
+  {
+    "id": "common.app_name",
+    "group": "common",
+    "context": "앱 및 브라우저 창 이름",
+    "notes": "{title}, {subtitle}"
+  },
+  {
+    "id": "ending.1.title",
+    "group": "ending",
+    "context": "결말 표시명; 저장 식별자와 분리",
+    "notes": ""
+  },
+  {
+    "id": "ending.2.title",
+    "group": "ending",
+    "context": "결말 표시명; 저장 식별자와 분리",
+    "notes": ""
+  },
+  {
+    "id": "ending.3.title",
+    "group": "ending",
+    "context": "결말 표시명; 저장 식별자와 분리",
+    "notes": ""
+  },
+  {
+    "id": "ending.4.title",
+    "group": "ending",
+    "context": "결말 표시명; 저장 식별자와 분리",
+    "notes": ""
+  },
+  {
+    "id": "ending.5.title",
+    "group": "ending",
+    "context": "결말 표시명; 저장 식별자와 분리",
+    "notes": ""
+  },
+  {
+    "id": "ui.001",
+    "group": "ui",
+    "context": "App.tsx:14",
+    "notes": ""
+  },
+  {
+    "id": "ui.002",
+    "group": "ui",
+    "context": "App.tsx:15",
+    "notes": ""
+  },
+  {
+    "id": "ui.003",
+    "group": "ui",
+    "context": "App.tsx:16",
+    "notes": ""
+  },
+  {
+    "id": "ui.004",
+    "group": "ui",
+    "context": "App.tsx:17",
+    "notes": ""
+  },
+  {
+    "id": "ui.005",
+    "group": "ui",
+    "context": "App.tsx:18",
+    "notes": ""
+  },
+  {
+    "id": "ui.006",
+    "group": "ui",
+    "context": "App.tsx:42",
+    "notes": ""
+  },
+  {
+    "id": "ui.007",
+    "group": "ui",
+    "context": "App.tsx:44",
+    "notes": ""
+  },
+  {
+    "id": "ui.008",
+    "group": "ui",
+    "context": "App.tsx:50",
+    "notes": ""
+  },
+  {
+    "id": "ui.009",
+    "group": "ui",
+    "context": "App.tsx:62",
+    "notes": ""
+  },
+  {
+    "id": "ui.010",
+    "group": "ui",
+    "context": "App.tsx:64",
+    "notes": "{subtitle}"
+  },
+  {
+    "id": "ui.011",
+    "group": "ui",
+    "context": "App.tsx:66",
+    "notes": ""
+  },
+  {
+    "id": "ui.012",
+    "group": "ui",
+    "context": "App.tsx:67",
+    "notes": ""
+  },
+  {
+    "id": "ui.013",
+    "group": "ui",
+    "context": "App.tsx:67",
+    "notes": ""
+  },
+  {
+    "id": "title.intro",
+    "group": "ui",
+    "context": "App.tsx:70",
+    "notes": "{subtitle}"
+  },
+  {
+    "id": "button.enter",
+    "group": "ui",
+    "context": "App.tsx:73",
+    "notes": ""
+  },
+  {
+    "id": "prologue.label",
+    "group": "ui",
+    "context": "App.tsx:76",
+    "notes": ""
+  },
+  {
+    "id": "prologue.title",
+    "group": "ui",
+    "context": "App.tsx:76",
+    "notes": ""
+  },
+  {
+    "id": "prologue.body",
+    "group": "ui",
+    "context": "App.tsx:77",
+    "notes": ""
+  },
+  {
+    "id": "creation.class_prompt",
+    "group": "ui",
+    "context": "App.tsx:78",
+    "notes": ""
+  },
+  {
+    "id": "creation.class_count",
+    "group": "ui",
+    "context": "App.tsx:78",
+    "notes": ""
+  },
+  {
+    "id": "button.start_game",
+    "group": "ui",
+    "context": "App.tsx:80",
+    "notes": ""
+  },
+  {
+    "id": "ui.022",
+    "group": "ui",
+    "context": "App.tsx:81",
+    "notes": "{day}"
+  },
+  {
+    "id": "button.resume",
+    "group": "ui",
+    "context": "App.tsx:81",
+    "notes": ""
+  },
+  {
+    "id": "button.back_to_title",
+    "group": "ui",
+    "context": "App.tsx:82",
+    "notes": ""
+  },
+  {
+    "id": "ui.025",
+    "group": "ui",
+    "context": "App.tsx:82",
+    "notes": ""
+  },
+  {
+    "id": "ui.026",
+    "group": "ui",
+    "context": "App.tsx:85",
+    "notes": "{value1}, {place}"
+  },
+  {
+    "id": "ui.027",
+    "group": "ui",
+    "context": "App.tsx:85",
+    "notes": "{day}"
+  },
+  {
+    "id": "ui.028",
+    "group": "ui",
+    "context": "App.tsx:87",
+    "notes": ""
+  },
+  {
+    "id": "ui.029",
+    "group": "ui",
+    "context": "App.tsx:87",
+    "notes": ""
+  },
+  {
+    "id": "ui.030",
+    "group": "ui",
+    "context": "App.tsx:87",
+    "notes": ""
+  },
+  {
+    "id": "ui.031",
+    "group": "ui",
+    "context": "App.tsx:88",
+    "notes": "{name}, {level}"
+  },
+  {
+    "id": "ui.032",
+    "group": "ui",
+    "context": "App.tsx:89",
+    "notes": ""
+  },
+  {
+    "id": "ui.033",
+    "group": "ui",
+    "context": "App.tsx:89",
+    "notes": "{day}, {relics}"
+  },
+  {
+    "id": "ui.034",
+    "group": "ui",
+    "context": "App.tsx:89",
+    "notes": ""
+  },
+  {
+    "id": "ui.035",
+    "group": "ui",
+    "context": "App.tsx:89",
+    "notes": ""
+  },
+  {
+    "id": "ui.036",
+    "group": "ui",
+    "context": "App.tsx:91",
+    "notes": ""
+  },
+  {
+    "id": "ui.037",
+    "group": "ui",
+    "context": "App.tsx:91",
+    "notes": ""
+  },
+  {
+    "id": "ui.038",
+    "group": "ui",
+    "context": "App.tsx:91",
+    "notes": ""
+  },
+  {
+    "id": "ui.039",
+    "group": "ui",
+    "context": "App.tsx:91",
+    "notes": ""
+  },
+  {
+    "id": "ui.040",
+    "group": "ui",
+    "context": "App.tsx:91",
+    "notes": "{length}"
+  },
+  {
+    "id": "ui.041",
+    "group": "ui",
+    "context": "App.tsx:92",
+    "notes": ""
+  },
+  {
+    "id": "ui.042",
+    "group": "ui",
+    "context": "App.tsx:92",
+    "notes": ""
+  },
+  {
+    "id": "ui.043",
+    "group": "ui",
+    "context": "App.tsx:92",
+    "notes": ""
+  },
+  {
+    "id": "ui.044",
+    "group": "ui",
+    "context": "App.tsx:93",
+    "notes": ""
+  },
+  {
+    "id": "ui.045",
+    "group": "ui",
+    "context": "App.tsx:96",
+    "notes": ""
+  },
+  {
+    "id": "ui.046",
+    "group": "ui",
+    "context": "App.tsx:96",
+    "notes": ""
+  },
+  {
+    "id": "ui.047",
+    "group": "ui",
+    "context": "App.tsx:96",
+    "notes": ""
+  },
+  {
+    "id": "ui.048",
+    "group": "ui",
+    "context": "App.tsx:97",
+    "notes": ""
+  },
+  {
+    "id": "ui.049",
+    "group": "ui",
+    "context": "App.tsx:97",
+    "notes": ""
+  },
+  {
+    "id": "ui.050",
+    "group": "ui",
+    "context": "App.tsx:97",
+    "notes": ""
+  },
+  {
+    "id": "ui.051",
+    "group": "ui",
+    "context": "App.tsx:97",
+    "notes": "{value1}"
+  },
+  {
+    "id": "ui.052",
+    "group": "ui",
+    "context": "App.tsx:97",
+    "notes": ""
+  },
+  {
+    "id": "ui.053",
+    "group": "ui",
+    "context": "App.tsx:97",
+    "notes": ""
+  },
+  {
+    "id": "ui.054",
+    "group": "ui",
+    "context": "App.tsx:98",
+    "notes": ""
+  },
+  {
+    "id": "ui.055",
+    "group": "ui",
+    "context": "App.tsx:98",
+    "notes": ""
+  },
+  {
+    "id": "ui.056",
+    "group": "ui",
+    "context": "App.tsx:98",
+    "notes": ""
+  },
+  {
+    "id": "ui.057",
+    "group": "ui",
+    "context": "App.tsx:98",
+    "notes": ""
+  },
+  {
+    "id": "ui.058",
+    "group": "ui",
+    "context": "App.tsx:98",
+    "notes": ""
+  },
+  {
+    "id": "ui.059",
+    "group": "ui",
+    "context": "App.tsx:98",
+    "notes": "{days}, {relics}"
+  },
+  {
+    "id": "ui.060",
+    "group": "ui",
+    "context": "App.tsx:98",
+    "notes": ""
+  },
+  {
+    "id": "ui.061",
+    "group": "ui",
+    "context": "App.tsx:98",
+    "notes": ""
+  },
+  {
+    "id": "ui.062",
+    "group": "ui",
+    "context": "App.tsx:100",
+    "notes": ""
+  },
+  {
+    "id": "ui.063",
+    "group": "ui",
+    "context": "App.tsx:100",
+    "notes": ""
+  },
+  {
+    "id": "ui.064",
+    "group": "ui",
+    "context": "App.tsx:100",
+    "notes": ""
+  },
+  {
+    "id": "ui.065",
+    "group": "ui",
+    "context": "App.tsx:100",
+    "notes": ""
+  },
+  {
+    "id": "game.001",
+    "group": "game",
+    "context": "src/game.ts:22",
+    "notes": ""
+  },
+  {
+    "id": "game.002",
+    "group": "game",
+    "context": "src/game.ts:22",
+    "notes": ""
+  },
+  {
+    "id": "game.003",
+    "group": "game",
+    "context": "src/game.ts:22",
+    "notes": ""
+  },
+  {
+    "id": "game.004",
+    "group": "game",
+    "context": "src/game.ts:23",
+    "notes": ""
+  },
+  {
+    "id": "game.005",
+    "group": "game",
+    "context": "src/game.ts:23",
+    "notes": ""
+  },
+  {
+    "id": "game.006",
+    "group": "game",
+    "context": "src/game.ts:23",
+    "notes": ""
+  },
+  {
+    "id": "game.007",
+    "group": "game",
+    "context": "src/game.ts:24",
+    "notes": ""
+  },
+  {
+    "id": "game.008",
+    "group": "game",
+    "context": "src/game.ts:24",
+    "notes": ""
+  },
+  {
+    "id": "game.009",
+    "group": "game",
+    "context": "src/game.ts:24",
+    "notes": ""
+  },
+  {
+    "id": "game.010",
+    "group": "game",
+    "context": "src/game.ts:25",
+    "notes": ""
+  },
+  {
+    "id": "game.011",
+    "group": "game",
+    "context": "src/game.ts:25",
+    "notes": ""
+  },
+  {
+    "id": "game.012",
+    "group": "game",
+    "context": "src/game.ts:25",
+    "notes": ""
+  },
+  {
+    "id": "game.013",
+    "group": "game",
+    "context": "src/game.ts:26",
+    "notes": ""
+  },
+  {
+    "id": "game.014",
+    "group": "game",
+    "context": "src/game.ts:26",
+    "notes": ""
+  },
+  {
+    "id": "game.015",
+    "group": "game",
+    "context": "src/game.ts:26",
+    "notes": ""
+  },
+  {
+    "id": "game.016",
+    "group": "game",
+    "context": "src/game.ts:27",
+    "notes": ""
+  },
+  {
+    "id": "game.017",
+    "group": "game",
+    "context": "src/game.ts:27",
+    "notes": ""
+  },
+  {
+    "id": "game.018",
+    "group": "game",
+    "context": "src/game.ts:27",
+    "notes": ""
+  },
+  {
+    "id": "game.019",
+    "group": "game",
+    "context": "src/game.ts:31",
+    "notes": ""
+  },
+  {
+    "id": "game.020",
+    "group": "game",
+    "context": "src/game.ts:31",
+    "notes": ""
+  },
+  {
+    "id": "game.021",
+    "group": "game",
+    "context": "src/game.ts:32",
+    "notes": ""
+  },
+  {
+    "id": "game.022",
+    "group": "game",
+    "context": "src/game.ts:32",
+    "notes": ""
+  },
+  {
+    "id": "game.023",
+    "group": "game",
+    "context": "src/game.ts:33",
+    "notes": ""
+  },
+  {
+    "id": "game.024",
+    "group": "game",
+    "context": "src/game.ts:33",
+    "notes": ""
+  },
+  {
+    "id": "game.025",
+    "group": "game",
+    "context": "src/game.ts:36",
+    "notes": ""
+  },
+  {
+    "id": "game.026",
+    "group": "game",
+    "context": "src/game.ts:36",
+    "notes": ""
+  },
+  {
+    "id": "game.027",
+    "group": "game",
+    "context": "src/game.ts:36",
+    "notes": ""
+  },
+  {
+    "id": "game.028",
+    "group": "game",
+    "context": "src/game.ts:36",
+    "notes": ""
+  },
+  {
+    "id": "game.029",
+    "group": "game",
+    "context": "src/game.ts:36",
+    "notes": ""
+  },
+  {
+    "id": "game.030",
+    "group": "game",
+    "context": "src/game.ts:37",
+    "notes": ""
+  },
+  {
+    "id": "game.031",
+    "group": "game",
+    "context": "src/game.ts:37",
+    "notes": ""
+  },
+  {
+    "id": "game.032",
+    "group": "game",
+    "context": "src/game.ts:37",
+    "notes": ""
+  },
+  {
+    "id": "game.033",
+    "group": "game",
+    "context": "src/game.ts:37",
+    "notes": ""
+  },
+  {
+    "id": "game.034",
+    "group": "game",
+    "context": "src/game.ts:37",
+    "notes": ""
+  },
+  {
+    "id": "game.035",
+    "group": "game",
+    "context": "src/game.ts:53",
+    "notes": ""
+  },
+  {
+    "id": "game.036",
+    "group": "game",
+    "context": "src/game.ts:53",
+    "notes": ""
+  },
+  {
+    "id": "game.037",
+    "group": "game",
+    "context": "src/game.ts:53",
+    "notes": ""
+  },
+  {
+    "id": "game.038",
+    "group": "game",
+    "context": "src/game.ts:54",
+    "notes": ""
+  },
+  {
+    "id": "game.039",
+    "group": "game",
+    "context": "src/game.ts:54",
+    "notes": ""
+  },
+  {
+    "id": "game.040",
+    "group": "game",
+    "context": "src/game.ts:54",
+    "notes": ""
+  },
+  {
+    "id": "game.041",
+    "group": "game",
+    "context": "src/game.ts:55",
+    "notes": ""
+  },
+  {
+    "id": "game.042",
+    "group": "game",
+    "context": "src/game.ts:55",
+    "notes": ""
+  },
+  {
+    "id": "game.043",
+    "group": "game",
+    "context": "src/game.ts:55",
+    "notes": ""
+  },
+  {
+    "id": "game.044",
+    "group": "game",
+    "context": "src/game.ts:55",
+    "notes": ""
+  },
+  {
+    "id": "game.045",
+    "group": "game",
+    "context": "src/game.ts:56",
+    "notes": ""
+  },
+  {
+    "id": "game.046",
+    "group": "game",
+    "context": "src/game.ts:56",
+    "notes": ""
+  },
+  {
+    "id": "game.047",
+    "group": "game",
+    "context": "src/game.ts:56",
+    "notes": ""
+  },
+  {
+    "id": "game.048",
+    "group": "game",
+    "context": "src/game.ts:58",
+    "notes": ""
+  },
+  {
+    "id": "game.049",
+    "group": "game",
+    "context": "src/game.ts:58",
+    "notes": ""
+  },
+  {
+    "id": "game.050",
+    "group": "game",
+    "context": "src/game.ts:58",
+    "notes": ""
+  },
+  {
+    "id": "game.051",
+    "group": "game",
+    "context": "src/game.ts:59",
+    "notes": ""
+  },
+  {
+    "id": "game.052",
+    "group": "game",
+    "context": "src/game.ts:59",
+    "notes": ""
+  },
+  {
+    "id": "game.053",
+    "group": "game",
+    "context": "src/game.ts:59",
+    "notes": ""
+  },
+  {
+    "id": "game.054",
+    "group": "game",
+    "context": "src/game.ts:59",
+    "notes": ""
+  },
+  {
+    "id": "game.055",
+    "group": "game",
+    "context": "src/game.ts:60",
+    "notes": ""
+  },
+  {
+    "id": "game.056",
+    "group": "game",
+    "context": "src/game.ts:60",
+    "notes": ""
+  },
+  {
+    "id": "game.057",
+    "group": "game",
+    "context": "src/game.ts:60",
+    "notes": ""
+  },
+  {
+    "id": "game.058",
+    "group": "game",
+    "context": "src/game.ts:62",
+    "notes": ""
+  },
+  {
+    "id": "game.059",
+    "group": "game",
+    "context": "src/game.ts:62",
+    "notes": ""
+  },
+  {
+    "id": "game.060",
+    "group": "game",
+    "context": "src/game.ts:62",
+    "notes": ""
+  },
+  {
+    "id": "game.061",
+    "group": "game",
+    "context": "src/game.ts:63",
+    "notes": ""
+  },
+  {
+    "id": "game.062",
+    "group": "game",
+    "context": "src/game.ts:63",
+    "notes": ""
+  },
+  {
+    "id": "game.063",
+    "group": "game",
+    "context": "src/game.ts:63",
+    "notes": ""
+  },
+  {
+    "id": "game.064",
+    "group": "game",
+    "context": "src/game.ts:64",
+    "notes": ""
+  },
+  {
+    "id": "game.065",
+    "group": "game",
+    "context": "src/game.ts:64",
+    "notes": ""
+  },
+  {
+    "id": "game.066",
+    "group": "game",
+    "context": "src/game.ts:64",
+    "notes": ""
+  },
+  {
+    "id": "game.067",
+    "group": "game",
+    "context": "src/game.ts:65",
+    "notes": ""
+  },
+  {
+    "id": "game.068",
+    "group": "game",
+    "context": "src/game.ts:65",
+    "notes": ""
+  },
+  {
+    "id": "game.069",
+    "group": "game",
+    "context": "src/game.ts:65",
+    "notes": ""
+  },
+  {
+    "id": "game.070",
+    "group": "game",
+    "context": "src/game.ts:66",
+    "notes": ""
+  },
+  {
+    "id": "game.071",
+    "group": "game",
+    "context": "src/game.ts:66",
+    "notes": ""
+  },
+  {
+    "id": "game.072",
+    "group": "game",
+    "context": "src/game.ts:66",
+    "notes": ""
+  },
+  {
+    "id": "game.073",
+    "group": "game",
+    "context": "src/game.ts:68",
+    "notes": ""
+  },
+  {
+    "id": "game.074",
+    "group": "game",
+    "context": "src/game.ts:68",
+    "notes": ""
+  },
+  {
+    "id": "game.075",
+    "group": "game",
+    "context": "src/game.ts:68",
+    "notes": ""
+  },
+  {
+    "id": "game.076",
+    "group": "game",
+    "context": "src/game.ts:69",
+    "notes": ""
+  },
+  {
+    "id": "game.077",
+    "group": "game",
+    "context": "src/game.ts:69",
+    "notes": ""
+  },
+  {
+    "id": "game.078",
+    "group": "game",
+    "context": "src/game.ts:69",
+    "notes": ""
+  },
+  {
+    "id": "game.079",
+    "group": "game",
+    "context": "src/game.ts:69",
+    "notes": ""
+  },
+  {
+    "id": "game.080",
+    "group": "game",
+    "context": "src/game.ts:70",
+    "notes": ""
+  },
+  {
+    "id": "game.081",
+    "group": "game",
+    "context": "src/game.ts:70",
+    "notes": ""
+  },
+  {
+    "id": "game.082",
+    "group": "game",
+    "context": "src/game.ts:70",
+    "notes": ""
+  },
+  {
+    "id": "game.083",
+    "group": "game",
+    "context": "src/game.ts:70",
+    "notes": ""
+  },
+  {
+    "id": "game.084",
+    "group": "game",
+    "context": "src/game.ts:71",
+    "notes": ""
+  },
+  {
+    "id": "game.085",
+    "group": "game",
+    "context": "src/game.ts:71",
+    "notes": ""
+  },
+  {
+    "id": "game.086",
+    "group": "game",
+    "context": "src/game.ts:71",
+    "notes": ""
+  },
+  {
+    "id": "game.087",
+    "group": "game",
+    "context": "src/game.ts:73",
+    "notes": ""
+  },
+  {
+    "id": "game.088",
+    "group": "game",
+    "context": "src/game.ts:73",
+    "notes": ""
+  },
+  {
+    "id": "game.089",
+    "group": "game",
+    "context": "src/game.ts:73",
+    "notes": ""
+  },
+  {
+    "id": "game.090",
+    "group": "game",
+    "context": "src/game.ts:74",
+    "notes": ""
+  },
+  {
+    "id": "game.091",
+    "group": "game",
+    "context": "src/game.ts:74",
+    "notes": ""
+  },
+  {
+    "id": "game.092",
+    "group": "game",
+    "context": "src/game.ts:74",
+    "notes": ""
+  },
+  {
+    "id": "game.093",
+    "group": "game",
+    "context": "src/game.ts:74",
+    "notes": ""
+  },
+  {
+    "id": "game.094",
+    "group": "game",
+    "context": "src/game.ts:75",
+    "notes": ""
+  },
+  {
+    "id": "game.095",
+    "group": "game",
+    "context": "src/game.ts:75",
+    "notes": ""
+  },
+  {
+    "id": "game.096",
+    "group": "game",
+    "context": "src/game.ts:75",
+    "notes": ""
+  },
+  {
+    "id": "game.097",
+    "group": "game",
+    "context": "src/game.ts:76",
+    "notes": ""
+  },
+  {
+    "id": "game.098",
+    "group": "game",
+    "context": "src/game.ts:76",
+    "notes": ""
+  },
+  {
+    "id": "game.099",
+    "group": "game",
+    "context": "src/game.ts:76",
+    "notes": ""
+  },
+  {
+    "id": "game.100",
+    "group": "game",
+    "context": "src/game.ts:78",
+    "notes": ""
+  },
+  {
+    "id": "game.101",
+    "group": "game",
+    "context": "src/game.ts:78",
+    "notes": ""
+  },
+  {
+    "id": "game.102",
+    "group": "game",
+    "context": "src/game.ts:78",
+    "notes": ""
+  },
+  {
+    "id": "game.103",
+    "group": "game",
+    "context": "src/game.ts:79",
+    "notes": ""
+  },
+  {
+    "id": "game.104",
+    "group": "game",
+    "context": "src/game.ts:79",
+    "notes": ""
+  },
+  {
+    "id": "game.105",
+    "group": "game",
+    "context": "src/game.ts:79",
+    "notes": ""
+  },
+  {
+    "id": "game.106",
+    "group": "game",
+    "context": "src/game.ts:80",
+    "notes": ""
+  },
+  {
+    "id": "game.107",
+    "group": "game",
+    "context": "src/game.ts:80",
+    "notes": ""
+  },
+  {
+    "id": "game.108",
+    "group": "game",
+    "context": "src/game.ts:80",
+    "notes": ""
+  },
+  {
+    "id": "game.109",
+    "group": "game",
+    "context": "src/game.ts:82",
+    "notes": ""
+  },
+  {
+    "id": "game.110",
+    "group": "game",
+    "context": "src/game.ts:82",
+    "notes": ""
+  },
+  {
+    "id": "game.111",
+    "group": "game",
+    "context": "src/game.ts:82",
+    "notes": ""
+  },
+  {
+    "id": "game.112",
+    "group": "game",
+    "context": "src/game.ts:83",
+    "notes": ""
+  },
+  {
+    "id": "game.113",
+    "group": "game",
+    "context": "src/game.ts:83",
+    "notes": ""
+  },
+  {
+    "id": "game.114",
+    "group": "game",
+    "context": "src/game.ts:83",
+    "notes": ""
+  },
+  {
+    "id": "game.115",
+    "group": "game",
+    "context": "src/game.ts:84",
+    "notes": ""
+  },
+  {
+    "id": "game.116",
+    "group": "game",
+    "context": "src/game.ts:84",
+    "notes": ""
+  },
+  {
+    "id": "game.117",
+    "group": "game",
+    "context": "src/game.ts:84",
+    "notes": ""
+  },
+  {
+    "id": "game.118",
+    "group": "game",
+    "context": "src/game.ts:86",
+    "notes": ""
+  },
+  {
+    "id": "game.119",
+    "group": "game",
+    "context": "src/game.ts:86",
+    "notes": ""
+  },
+  {
+    "id": "game.120",
+    "group": "game",
+    "context": "src/game.ts:86",
+    "notes": ""
+  },
+  {
+    "id": "game.121",
+    "group": "game",
+    "context": "src/game.ts:87",
+    "notes": ""
+  },
+  {
+    "id": "game.122",
+    "group": "game",
+    "context": "src/game.ts:87",
+    "notes": ""
+  },
+  {
+    "id": "game.123",
+    "group": "game",
+    "context": "src/game.ts:87",
+    "notes": ""
+  },
+  {
+    "id": "game.124",
+    "group": "game",
+    "context": "src/game.ts:87",
+    "notes": ""
+  },
+  {
+    "id": "game.125",
+    "group": "game",
+    "context": "src/game.ts:88",
+    "notes": ""
+  },
+  {
+    "id": "game.126",
+    "group": "game",
+    "context": "src/game.ts:88",
+    "notes": ""
+  },
+  {
+    "id": "game.127",
+    "group": "game",
+    "context": "src/game.ts:88",
+    "notes": ""
+  },
+  {
+    "id": "game.128",
+    "group": "game",
+    "context": "src/game.ts:92",
+    "notes": ""
+  },
+  {
+    "id": "game.129",
+    "group": "game",
+    "context": "src/game.ts:95",
+    "notes": ""
+  },
+  {
+    "id": "game.130",
+    "group": "game",
+    "context": "src/game.ts:102",
+    "notes": ""
+  },
+  {
+    "id": "game.131",
+    "group": "game",
+    "context": "src/game.ts:102",
+    "notes": ""
+  },
+  {
+    "id": "game.132",
+    "group": "game",
+    "context": "src/game.ts:102",
+    "notes": ""
+  },
+  {
+    "id": "game.133",
+    "group": "game",
+    "context": "src/game.ts:102",
+    "notes": ""
+  },
+  {
+    "id": "game.134",
+    "group": "game",
+    "context": "src/game.ts:102",
+    "notes": ""
+  },
+  {
+    "id": "game.135",
+    "group": "game",
+    "context": "src/game.ts:102",
+    "notes": "{value1}, {value2}"
+  },
+  {
+    "id": "game.136",
+    "group": "game",
+    "context": "src/game.ts:103",
+    "notes": ""
+  },
+  {
+    "id": "game.137",
+    "group": "game",
+    "context": "src/game.ts:103",
+    "notes": "{value1}"
+  },
+  {
+    "id": "game.138",
+    "group": "game",
+    "context": "src/game.ts:103",
+    "notes": ""
+  },
+  {
+    "id": "game.139",
+    "group": "game",
+    "context": "src/game.ts:104",
+    "notes": ""
+  },
+  {
+    "id": "game.140",
+    "group": "game",
+    "context": "src/game.ts:104",
+    "notes": ""
+  },
+  {
+    "id": "game.141",
+    "group": "game",
+    "context": "src/game.ts:104",
+    "notes": ""
+  },
+  {
+    "id": "game.142",
+    "group": "game",
+    "context": "src/game.ts:104",
+    "notes": ""
+  },
+  {
+    "id": "game.143",
+    "group": "game",
+    "context": "src/game.ts:104",
+    "notes": ""
+  },
+  {
+    "id": "game.144",
+    "group": "game",
+    "context": "src/game.ts:105",
+    "notes": ""
+  },
+  {
+    "id": "game.145",
+    "group": "game",
+    "context": "src/game.ts:105",
+    "notes": ""
+  },
+  {
+    "id": "game.146",
+    "group": "game",
+    "context": "src/game.ts:105",
+    "notes": ""
+  },
+  {
+    "id": "game.147",
+    "group": "game",
+    "context": "src/game.ts:106",
+    "notes": ""
+  },
+  {
+    "id": "game.148",
+    "group": "game",
+    "context": "src/game.ts:106",
+    "notes": ""
+  },
+  {
+    "id": "game.149",
+    "group": "game",
+    "context": "src/game.ts:106",
+    "notes": ""
+  },
+  {
+    "id": "game.150",
+    "group": "game",
+    "context": "src/game.ts:111",
+    "notes": ""
+  },
+  {
+    "id": "game.151",
+    "group": "game",
+    "context": "src/game.ts:112",
+    "notes": ""
+  },
+  {
+    "id": "game.152",
+    "group": "game",
+    "context": "src/game.ts:113",
+    "notes": ""
+  },
+  {
+    "id": "game.153",
+    "group": "game",
+    "context": "src/game.ts:124",
+    "notes": ""
+  },
+  {
+    "id": "game.154",
+    "group": "game",
+    "context": "src/game.ts:124",
+    "notes": ""
+  },
+  {
+    "id": "game.155",
+    "group": "game",
+    "context": "src/game.ts:124",
+    "notes": "{value1}, {value2}, {dice}, {difficulty}, {value5}"
+  },
+  {
+    "id": "game.156",
+    "group": "game",
+    "context": "src/game.ts:126",
+    "notes": "{day}, {title}, {label}, {result}"
+  },
+  {
+    "id": "game.157",
+    "group": "game",
+    "context": "src/game.ts:187",
+    "notes": ""
+  },
+  {
+    "id": "game.158",
+    "group": "game",
+    "context": "src/game.ts:187",
+    "notes": ""
+  },
+  {
+    "id": "game.159",
+    "group": "game",
+    "context": "src/game.ts:187",
+    "notes": ""
+  },
+  {
+    "id": "game.160",
+    "group": "game",
+    "context": "src/game.ts:187",
+    "notes": ""
+  },
+  {
+    "id": "game.161",
+    "group": "game",
+    "context": "src/game.ts:189",
+    "notes": "{enemy}"
+  },
+  {
+    "id": "game.162",
+    "group": "game",
+    "context": "src/game.ts:193",
+    "notes": ""
+  },
+  {
+    "id": "game.163",
+    "group": "game",
+    "context": "src/game.ts:194",
+    "notes": ""
+  },
+  {
+    "id": "game.164",
+    "group": "game",
+    "context": "src/game.ts:195",
+    "notes": ""
+  },
+  {
+    "id": "game.165",
+    "group": "game",
+    "context": "src/game.ts:196",
+    "notes": ""
+  },
+  {
+    "id": "game.166",
+    "group": "game",
+    "context": "src/game.ts:197",
+    "notes": ""
+  },
+  {
+    "id": "game.167",
+    "group": "game",
+    "context": "src/game.ts:205",
+    "notes": "{turn}"
+  },
+  {
+    "id": "game.168",
+    "group": "game",
+    "context": "src/game.ts:209",
+    "notes": ""
+  },
+  {
+    "id": "game.169",
+    "group": "game",
+    "context": "src/game.ts:209",
+    "notes": "{day}, {enemy}"
+  },
+  {
+    "id": "game.170",
+    "group": "game",
+    "context": "src/game.ts:210",
+    "notes": ""
+  },
+  {
+    "id": "game.171",
+    "group": "game",
+    "context": "src/game.ts:214",
+    "notes": "{restored}"
+  },
+  {
+    "id": "game.172",
+    "group": "game",
+    "context": "src/game.ts:217",
+    "notes": ""
+  },
+  {
+    "id": "game.173",
+    "group": "game",
+    "context": "src/game.ts:222",
+    "notes": ""
+  },
+  {
+    "id": "game.174",
+    "group": "game",
+    "context": "src/game.ts:222",
+    "notes": ""
+  },
+  {
+    "id": "game.175",
+    "group": "game",
+    "context": "src/game.ts:222",
+    "notes": ""
+  },
+  {
+    "id": "game.176",
+    "group": "game",
+    "context": "src/game.ts:222",
+    "notes": ""
+  },
+  {
+    "id": "game.177",
+    "group": "game",
+    "context": "src/game.ts:226",
+    "notes": ""
+  },
+  {
+    "id": "game.178",
+    "group": "game",
+    "context": "src/game.ts:230",
+    "notes": ""
+  },
+  {
+    "id": "game.179",
+    "group": "game",
+    "context": "src/game.ts:231",
+    "notes": ""
+  },
+  {
+    "id": "game.180",
+    "group": "game",
+    "context": "src/game.ts:234",
+    "notes": "{healed}"
+  },
+  {
+    "id": "game.181",
+    "group": "game",
+    "context": "src/game.ts:246",
+    "notes": ""
+  },
+  {
+    "id": "game.182",
+    "group": "game",
+    "context": "src/game.ts:246",
+    "notes": ""
+  },
+  {
+    "id": "game.183",
+    "group": "game",
+    "context": "src/game.ts:246",
+    "notes": "{value1}, {kind}, {value3}, {enemy}, {damage}"
+  },
+  {
+    "id": "game.184",
+    "group": "game",
+    "context": "src/game.ts:247",
+    "notes": "{value1}, {kind}"
+  },
+  {
+    "id": "game.185",
+    "group": "game",
+    "context": "src/game.ts:257",
+    "notes": "{name}"
+  },
+  {
+    "id": "game.186",
+    "group": "game",
+    "context": "src/game.ts:257",
+    "notes": "{reward}, {value2}, {value3}"
+  },
+  {
+    "id": "game.187",
+    "group": "game",
+    "context": "src/game.ts:258",
+    "notes": "{level}"
+  },
+  {
+    "id": "game.188",
+    "group": "game",
+    "context": "src/game.ts:259",
+    "notes": "{day}, {enemy}, {value3}"
+  },
+  {
+    "id": "game.189",
+    "group": "game",
+    "context": "src/game.ts:261",
+    "notes": "{enemy}"
+  },
+  {
+    "id": "game.190",
+    "group": "game",
+    "context": "src/game.ts:264",
+    "notes": "{enemy}, {value2}"
+  },
+  {
+    "id": "game.191",
+    "group": "game",
+    "context": "src/game.ts:271",
+    "notes": ""
+  },
+  {
+    "id": "game.192",
+    "group": "game",
+    "context": "src/game.ts:271",
+    "notes": "{enemy}, {value2}, {value3}, {damage}"
+  },
+  {
+    "id": "game.193",
+    "group": "game",
+    "context": "src/game.ts:274",
+    "notes": "{day}, {enemy}, {value3}"
+  },
+  {
+    "id": "game.194",
+    "group": "game",
+    "context": "src/game.ts:300",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.001",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:6",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.002",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:6",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.003",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:6",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.004",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:8",
+    "notes": "{rounds}"
+  },
+  {
+    "id": "combat_ui.005",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:10",
+    "notes": "{startHp}, {endHp}"
+  },
+  {
+    "id": "combat_ui.006",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:11",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.007",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:11",
+    "notes": "{gold}, {exp}, {value3}"
+  },
+  {
+    "id": "combat_ui.008",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:12",
+    "notes": "{name}"
+  },
+  {
+    "id": "combat_ui.009",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:13",
+    "notes": "{levels}"
+  },
+  {
+    "id": "combat_ui.010",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:14",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.011",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:15",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.012",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:24",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.013",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:25",
+    "notes": "{level}, {exp}, {value3}"
+  },
+  {
+    "id": "combat_ui.014",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:26",
+    "notes": "{potions}"
+  },
+  {
+    "id": "combat_ui.015",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:28",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.016",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:32",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.017",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:33",
+    "notes": "{physicalAttack}, {magicAttack}"
+  },
+  {
+    "id": "combat_ui.018",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:34",
+    "notes": "{physicalDefense}, {magicDefense}"
+  },
+  {
+    "id": "combat_ui.019",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:35",
+    "notes": "{maxHp}"
+  },
+  {
+    "id": "combat_ui.020",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:36",
+    "notes": "{value1}, {value2}"
+  },
+  {
+    "id": "combat_ui.021",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:37",
+    "notes": "{value1}"
+  },
+  {
+    "id": "combat_ui.022",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:39",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.023",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:39",
+    "notes": "{value1}"
+  },
+  {
+    "id": "combat_ui.024",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:40",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.025",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:43",
+    "notes": ""
+  },
+  {
+    "id": "combat_ui.026",
+    "group": "combat_ui",
+    "context": "src/CombatPanel.tsx:43",
+    "notes": ""
+  },
+  {
+    "id": "creation.001",
+    "group": "creation",
+    "context": "src/StatAllocationPanel.tsx:14",
+    "notes": ""
+  },
+  {
+    "id": "creation.002",
+    "group": "creation",
+    "context": "src/StatAllocationPanel.tsx:15",
+    "notes": "{remaining}, {CREATION_POINTS}"
+  },
+  {
+    "id": "creation.003",
+    "group": "creation",
+    "context": "src/StatAllocationPanel.tsx:16",
+    "notes": ""
+  },
+  {
+    "id": "creation.004",
+    "group": "creation",
+    "context": "src/StatAllocationPanel.tsx:18",
+    "notes": "{value1}, {value2}"
+  },
+  {
+    "id": "creation.005",
+    "group": "creation",
+    "context": "src/StatAllocationPanel.tsx:18",
+    "notes": "{value1}, {value2}"
+  },
+  {
+    "id": "creation.006",
+    "group": "creation",
+    "context": "src/StatAllocationPanel.tsx:19",
+    "notes": "{value1}"
+  },
+  {
+    "id": "creation.007",
+    "group": "creation",
+    "context": "src/StatAllocationPanel.tsx:21",
+    "notes": "{value1}"
+  },
+  {
+    "id": "creation.008",
+    "group": "creation",
+    "context": "src/StatAllocationPanel.tsx:23",
+    "notes": ""
+  },
+  {
+    "id": "creation.009",
+    "group": "creation",
+    "context": "src/StatAllocationPanel.tsx:24",
+    "notes": ""
+  }
+]

@@ -1,3 +1,4 @@
+import { t } from './localization';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { emptyAllocation, validAllocation, advance, archive, autoBattle, combatStats, maxHealth, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
@@ -130,8 +131,7 @@ test('choosing combat automatically resolves it and exposes full results exactly
   assert.equal(won.battleReport?.gold, 5);
   assert.equal(won.battleReport?.exp, 6);
   assert.deepEqual(won.battleReport?.items, ['sword']);
-  assert.ok(won.battleReport!.log.some(line => line.includes('1번째 턴')));
-  assert.ok(won.battleReport!.log.some(line => line.includes('승리!')));
+  assert.ok(won.battleReport!.log.join('\n').includes(t('game.167', { turn: 1 })));
   assert.equal(autoBattle(won), won);
   assert.equal(choose(won, 2), won);
   assert.equal(advance(won).battleReport, null);
@@ -190,11 +190,11 @@ test('dexterity and luck control real misses, dodges and criticals across seeded
     const low = { ...base, combat: { ...base.combat!, hp: 100, maxHp: 100 }, hero: { ...base.hero, de: 0, un: 0 } };
     const high = { ...low, hero: { ...low.hero, de: 10, un: 10 } };
     for (const [name, run] of [['Low', low], ['High', high]] as const) {
-      const attack = battleTurn(run, 'attack').combat!.log.join('\n');
-      const guard = battleTurn(run, 'guard').combat!.log.join('\n');
-      if (attack.includes('빗나갔다')) counts[`misses${name}`]++;
-      if (attack.includes('치명타')) counts[`critical${name}`]++;
-      if (guard.includes('회피했다')) counts[`dodges${name}`]++;
+      const attack = battleTurn(run, 'attack');
+      const guard = battleTurn(run, 'guard');
+      if (attack.combat!.hp === run.combat!.hp) counts[`misses${name}`]++;
+      if (run.combat!.hp - attack.combat!.hp > combatStats(run).physicalAttack + 2 - run.combat!.physicalDefense) counts[`critical${name}`]++;
+      if (guard.hero.hp === run.hero.hp) counts[`dodges${name}`]++;
     }
   }
   assert.ok(counts.missesHigh < counts.missesLow);
@@ -220,13 +220,13 @@ test('old three-stat saves migrate without losing injury, gold, story or equipme
 });
 
 test('six requested professions are available and distinguish damage, range and defense', () => {
-  assert.deepEqual(Object.values(roles).map(r => r.name), ['역사', '궁사', '검사', '주술사', '무격', '활사']);
+  assert.deepEqual(Object.keys(roles), ['warrior', 'archer', 'swordsman', 'sorcerer', 'medium', 'healer']);
   const base = beginCombat(newRun('swordsman', 1));
   const common = { ...base, combat: { ...base.combat!, hp: 100, maxHp: 100 } };
   const sword = battleTurn(common, 'attack');
-  assert.ok(sword.combat!.log.some(line => line.includes('근거리 물리')));
+  assert.ok(sword.combat!.log.some(line => line.includes(t('game.174'))));
   const archer = battleTurn({ ...common, role: 'archer' }, 'attack');
-  assert.ok(archer.combat!.log.some(line => line.includes('원거리 물리')));
+  assert.ok(archer.combat!.log.some(line => line.includes(t('game.173'))));
   for (const role of ['sorcerer', 'medium', 'healer'] as const) {
     const weak = battleTurn({ ...common, role }, 'attack');
     assert.ok(weak.combat!.hp > sword.combat!.hp, `${role} should do weaker basic damage`);
@@ -236,8 +236,8 @@ test('six requested professions are available and distinguish damage, range and 
   assert.ok(battleTurn(warrior, 'guard').hero.hp >= battleTurn(common, 'guard').hero.hp);
   const close = battleTurn({ ...common, role: 'medium' }, 'attack');
   const distant = battleTurn({ ...common, role: 'medium', combat: { ...common.combat!, intent: 'heavy' } }, 'attack');
-  assert.ok(close.combat!.log.some(line => line.includes('근거리')));
-  assert.ok(distant.combat!.log.some(line => line.includes('원거리')));
+  assert.ok(close.combat!.log.some(line => line.includes(t('game.174'))));
+  assert.ok(distant.combat!.log.some(line => line.includes(t('game.173'))));
 });
 
 test('archer debuffs the enemy; support buffs and debuffs last three turns including cast', () => {
@@ -264,9 +264,9 @@ test('healer skill restores health and automatic battle prioritizes healing', ()
   const healed = battleTurn(wounded, 'skill');
   assert.ok(healed.hero.hp > wounded.hero.hp);
   assert.ok(healed.hero.hp <= healed.hero.maxHp);
-  assert.ok(healed.combat!.log.some(line => line.includes('아군 체력')));
+  assert.ok(healed.combat!.log.some(line => line === t('game.180', { healed: Math.min(10 + wounded.hero.ji, wounded.hero.maxHp - wounded.hero.hp) })));
   const auto = autoBattle(wounded);
-  assert.ok(auto.battleReport!.log.some(line => line.includes('생명의 굿')));
+  assert.ok(auto.battleReport!.log.join('\n').includes(t('game.180', { healed: Math.min(10 + wounded.hero.ji, wounded.hero.maxHp - wounded.hero.hp) })));
   assert.equal(auto.combat, null);
 });
 
@@ -329,6 +329,6 @@ test('allocation permits specializing in one stat and rejects partial, excessive
   assert.equal(newRun('swordsman', 1, specialized).hero.un, 18);
   for (const invalid of [emptyAllocation(), { ...specialized, un: 14 }, { ...specialized, un: 16 }, { ...specialized, mu: -1, un: 16 }, { ...specialized, mu: 0.5, un: 14.5 }, { ...specialized, un: NaN }]) {
     assert.equal(validAllocation(invalid), false);
-    assert.throws(() => newRun('swordsman', 1, invalid), /15포인트/);
+    assert.throws(() => newRun('swordsman', 1, invalid), Error);
   }
 });

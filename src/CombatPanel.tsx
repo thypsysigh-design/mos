@@ -1,46 +1,47 @@
+import { t } from './localization';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { equipment, roles, combatStats, statNames, statEffects, type Stat, type BattleReport, type Run } from './game';
 
 export function BattleResult({ report }: { report: BattleReport }) {
-  const outcome = report.outcome === 'victory' ? '승리' : report.outcome === 'defeat' ? '패배' : '철수';
+  const outcome = report.outcome === 'victory' ? t("combat_ui.001") : report.outcome === 'defeat' ? t("combat_ui.002") : t("combat_ui.003");
   return <View style={s.panel}>
-    <Text style={s.kicker}>자동 전투 결과 · {report.rounds}턴</Text>
+    <Text style={s.kicker}>{t("combat_ui.004", { rounds: report.rounds })}</Text>
     <Text accessibilityLiveRegion="polite" style={[s.enemy, { color: '#332311' }]}>{outcome} · {report.enemy}</Text>
-    <Text style={[s.detail, { color: '#59462f' }]}>내 체력 {report.startHp} → {report.endHp}</Text>
-    <Text style={[s.detail, { color: '#59462f' }]}>획득 보상 · {report.gold}냥 · 경험치 {report.exp}{report.outcome === 'victory' ? ' · 봉인 유물 1개' : ''}</Text>
-    {report.items.map(id => <Text key={id} style={[s.detail, { color: '#8b2924' }]}>전리품 · {equipment[id].name}</Text>)}
-    {report.levels > 0 && <Text style={[s.detail, { color: '#8b2924' }]}>레벨 +{report.levels} · 최대 체력 증가</Text>}
-    <Text style={[s.help, { color: '#786343' }]}>직업 기술·방어·탕약 사용까지 자동으로 진행됩니다.</Text>
-    <Text style={s.kicker}>전체 전투 기록</Text>
+    <Text style={[s.detail, { color: '#59462f' }]}>{t("combat_ui.005", { startHp: report.startHp, endHp: report.endHp })}</Text>
+    <Text style={[s.detail, { color: '#59462f' }]}>{t("combat_ui.007", { gold: report.gold, exp: report.exp, value3: report.outcome === 'victory' ? t("combat_ui.006") : '' })}</Text>
+    {report.items.map(id => <Text key={id} style={[s.detail, { color: '#8b2924' }]}>{t("combat_ui.008", { name: equipment[id].name })}</Text>)}
+    {report.levels > 0 && <Text style={[s.detail, { color: '#8b2924' }]}>{t("combat_ui.009", { levels: report.levels })}</Text>}
+    <Text style={[s.help, { color: '#786343' }]}>{t("combat_ui.010")}</Text>
+    <Text style={s.kicker}>{t("combat_ui.011")}</Text>
     <View style={s.log}>{report.log.map((line, i) => <Text key={i} style={s.line}>{line}</Text>)}</View>
   </View>;
 }
 export function EquipmentPanel({ run, onEquip }: { run: Run; onEquip: (id: string) => void }) {
   const stats = combatStats(run);
   return <View>
-    <Text style={s.enemy}>사냥꾼의 행낭</Text>
+    <Text style={s.enemy}>{t("ui.045")}</Text>
     <Text style={s.itemName}>{roles[run.role].name} · {roles[run.role].description}</Text>
-    <Text style={s.help}>아군 강화·회복은 현재 1인 모험에서는 본인에게 적용됩니다.</Text>
-    <Text style={s.detail}>레벨 {run.progression.level} · 경험치 {run.progression.exp} / {run.progression.level * 10}</Text>
-    <Text style={s.detail}>산삼 탕약 {run.progression.potions}개 · 전투 중 체력 12 회복</Text>
+    <Text style={s.help}>{t("combat_ui.012")}</Text>
+    <Text style={s.detail}>{t("combat_ui.013", { level: run.progression.level, exp: run.progression.exp, value3: run.progression.level * 10 })}</Text>
+    <Text style={s.detail}>{t("combat_ui.014", { potions: run.progression.potions })}</Text>
     <View style={s.item}>
-      <Text style={s.itemName}>무 · 지 · 덕 · 체 · 운</Text>
+      <Text style={s.itemName}>{t("combat_ui.015")}</Text>
       {(Object.keys(statNames) as Stat[]).map(key => <View key={key} style={{ marginTop: 10 }}><Text style={s.itemName}>{statNames[key]} {run.hero[key]}</Text><Text style={s.detail}>{statEffects[key]}</Text></View>)}
     </View>
     <View style={s.item}>
-      <Text style={s.itemName}>전투 능력</Text>
-      <Text style={s.detail}>물리 공격력 {stats.physicalAttack} · 주술 공격력 {stats.magicAttack}</Text>
-      <Text style={s.detail}>물리 방어력 {stats.physicalDefense} · 주술 방어력 {stats.magicDefense}</Text>
-      <Text style={s.detail}>최대 체력 {run.hero.maxHp}</Text>
-      <Text style={s.detail}>명중 {(stats.hit * 100).toFixed(1)}% · 회피 {(stats.evade * 100).toFixed(1)}%</Text>
-      <Text style={s.detail}>치명타 {(stats.critical * 100).toFixed(1)}%</Text>
+      <Text style={s.itemName}>{t("combat_ui.016")}</Text>
+      <Text style={s.detail}>{t("combat_ui.017", { physicalAttack: stats.physicalAttack, magicAttack: stats.magicAttack })}</Text>
+      <Text style={s.detail}>{t("combat_ui.018", { physicalDefense: stats.physicalDefense, magicDefense: stats.magicDefense })}</Text>
+      <Text style={s.detail}>{t("combat_ui.019", { maxHp: run.hero.maxHp })}</Text>
+      <Text style={s.detail}>{t("combat_ui.020", { value1: (stats.hit * 100).toFixed(1), value2: (stats.evade * 100).toFixed(1) })}</Text>
+      <Text style={s.detail}>{t("combat_ui.021", { value1: (stats.critical * 100).toFixed(1) })}</Text>
     </View>
-    <Text style={s.help}>전투에서 얻은 장비를 눌러 착용하세요. 같은 종류는 하나씩 착용합니다.{run.combat ? '\n전투 중에는 장비를 바꿀 수 없습니다.' : ''}</Text>
-    {run.progression.inventory.length === 0 && <Text style={s.detail}>아직 장비가 없습니다. 성문 밖 도깨비를 사냥해 환도를 얻어 보세요.</Text>}
+    <Text style={s.help}>{t("combat_ui.023", { value1: run.combat ? t("combat_ui.022") : '' })}</Text>
+    {run.progression.inventory.length === 0 && <Text style={s.detail}>{t("combat_ui.024")}</Text>}
     {run.progression.inventory.map(id => {
       const item = equipment[id], equipped = run.progression[item.slot] === id;
-      return <Pressable accessibilityRole="button" accessibilityState={{ disabled: !!run.combat || !!run.ending, selected: equipped }} disabled={!!run.combat || !!run.ending} key={id} onPress={() => onEquip(id)} style={[s.item, equipped && { borderColor: '#cead64' }]}><Text style={s.itemName}>{item.name} {equipped ? '· 착용 중' : '· 미착용'}</Text><Text style={s.detail}>{item.description}</Text></Pressable>;
+      return <Pressable accessibilityRole="button" accessibilityState={{ disabled: !!run.combat || !!run.ending, selected: equipped }} disabled={!!run.combat || !!run.ending} key={id} onPress={() => onEquip(id)} style={[s.item, equipped && { borderColor: '#cead64' }]}><Text style={s.itemName}>{item.name} {equipped ? t("combat_ui.025") : t("combat_ui.026")}</Text><Text style={s.detail}>{item.description}</Text></Pressable>;
     })}
   </View>;
 }

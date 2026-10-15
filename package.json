@@ -9,9 +9,19 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/game.test.ts",
+    "test": "tsx --test src/game.test.ts src/localization/localization.test.ts && npm run texts:test",
     "export": "expo export --platform all",
-    "playtest": "expo export --platform web --output-dir web-dist --max-workers 2 && node scripts/build-playtest.mjs"
+    "playtest": "expo export --platform web --output-dir web-dist --max-workers 2 && node scripts/build-playtest.mjs",
+    "texts:import": "node scripts/import-texts.mjs",
+    "texts:check": "node scripts/import-texts.mjs --check",
+    "texts:test": "node --test scripts/text-catalog.test.mjs",
+    "prestart": "npm run texts:import",
+    "preweb": "npm run texts:import",
+    "preandroid": "npm run texts:import",
+    "preios": "npm run texts:import",
+    "preexport": "npm run texts:import",
+    "preplaytest": "npm run texts:import",
+    "pretest": "npm run texts:check"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.16",
@@ -25,8 +35,9 @@
     "react-native-web": "~0.21.0"
   },
   "devDependencies": {
-    "typescript": "~5.9.2",
+    "@types/react": "^19.2.0",
+    "exceljs": "^4.4.0",
     "tsx": "^4.20.0",
-    "@types/react": "^19.2.0"
+    "typescript": "~5.9.2"
   }
 }

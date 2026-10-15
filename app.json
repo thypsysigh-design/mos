@@ -1,6 +1,5 @@
 {
   "expo": {
-    "name": "이매망량의 주인 — 산군",
     "slug": "mos-adventure",
     "version": "0.5.0",
     "orientation": "portrait",
@@ -13,7 +12,6 @@
       "package": "com.thypsysigh.mos"
     },
     "web": {
-      "name": "이매망량의 주인 — 산군",
       "bundler": "metro"
     },
     "plugins": [
