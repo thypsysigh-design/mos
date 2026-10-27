@@ -1,3 +1,4 @@
+import { stories, storyScene, storyText, pickStory } from './stories';
 import { eligibleMonsters, monsterName, rollMonsterDrop, type MonsterDrop } from './monsters';
 import { t } from './localization';
 import { equipment, itemCatalog, type ItemId } from './items';
@@ -20,7 +21,7 @@ export function validAllocation(allocation: StatAllocation): boolean {
 }
 export type Hero = { hp: number; maxHp: number; gold: number; relics: number } & Record<Stat, number>;
 export type Choice = { label: string; hint: string; stat?: Stat; difficulty?: number; cost?: number; success: Effect; failure?: Effect };
-type Effect = { text: string; hp?: number; gold?: number; relics?: number; flag?: string; potions?: number; gainItem?: ItemId; loseItem?: boolean; status?: WorldEffectId };
+export type Effect = { text: string; mental?: number; statusBattles?: number; hp?: number; gold?: number; relics?: number; flag?: string; potions?: number; gainItem?: ItemId; loseItem?: boolean; status?: WorldEffectId };
 export type EventCategory = 'battle' | 'story' | 'shop';
 export type WorldEffectId = 'blessing' | 'curse';
 export type WorldEffect = { id: WorldEffectId; battles: number };
@@ -69,34 +70,10 @@ export function combatStats(run: Run) {
   };
 }
 export const scenes: Scene[] = [
-  { id: 'gate', category: 'story', title: t("game.035"), place: t("game.036"), text: t("game.037"), choices: [
-    { label: t("game.038"), hint: t("game.039"), success: { text: t("game.040"), flag: 'child', relics: 1, gainItem: 'charm' } },
-    { label: t("game.041"), hint: t("game.042"), stat: 'ji', difficulty: 5, success: { text: t("game.043"), flag: 'map', relics: 1, status: 'blessing' }, failure: { text: t("game.044"), hp: -3, status: 'curse' } },
-    { label: t("events.gate.trust"), hint: t("events.gate.trust_hint"), success: { text: t("events.gate.trust_result"), loseItem: true, status: 'curse' } },
-  ] },
+  ...Object.keys(stories).filter(id => id !== 'heart').map(storyScene),
   { id: 'bridge', category: 'battle', title: t("game.048"), place: t("game.049"), text: t("game.050"), choices: [] },
   { id: 'merchant', category: 'shop', title: t("game.058"), place: t("game.059"), text: t("game.060"), choices: [] },
   { id: 'wolf', category: 'battle', title: t("game.073"), place: t("game.074"), text: t("game.075"), choices: [] },
-  { id: 'library', category: 'story', title: t("game.087"), place: t("game.088"), text: t("game.089"), choices: [
-    { label: t("game.090"), hint: t("game.091"), stat: 'ji', difficulty: 6, success: { text: t("game.092"), flag: 'truth', relics: 1, status: 'blessing' }, failure: { text: t("game.093"), hp: -4, loseItem: true, status: 'curse' } },
-    { label: t("game.094"), hint: t("game.095"), success: { text: t("game.096"), hp: -3, relics: 1, gainItem: 'blade' } },
-    { label: t("game.097"), hint: t("game.098"), success: { text: t("game.099"), hp: 3 } },
-  ] },
-  { id: 'pool', category: 'story', title: t("game.100"), place: t("game.101"), text: t("game.102"), choices: [
-    { label: t("game.103"), hint: t("game.081"), stat: 'de', difficulty: 5, success: { text: t("game.104"), relics: 1, hp: 2, status: 'blessing' }, failure: { text: t("game.105"), hp: -4, status: 'curse' } },
-    { label: t("game.106"), hint: t("game.107"), success: { text: t("game.108"), hp: 4 } },
-    { label: t('events.pool.offer'), hint: t('events.pool.offer_hint'), cost: 2, success: { text: t('events.pool.offer_result'), gainItem: 'charm' } },
-  ] },
-  { id: 'camp', category: 'story', title: t("game.109"), place: t("game.110"), text: t("game.111"), choices: [
-    { label: t("game.112"), hint: t("game.113"), success: { text: t("game.114"), hp: 5, status: 'blessing' } },
-    { label: t("game.115"), hint: t("game.042"), stat: 'ji', difficulty: 5, success: { text: t("game.116"), gold: 7, flag: 'map', gainItem: 'sword' }, failure: { text: t("game.117"), gold: 2, hp: -3, loseItem: true, status: 'curse' } },
-    { label: t('events.camp.stranger'), hint: t('events.camp.stranger_hint'), success: { text: t('events.camp.stranger_result'), loseItem: true, status: 'curse' } },
-  ] },
-  { id: 'bells', category: 'story', title: t("game.118"), place: t("game.119"), text: t("game.120"), choices: [
-    { label: t("game.121"), hint: t("game.122"), stat: 'mu', difficulty: 5, success: { text: t("game.123"), relics: 1, flag: 'freed', status: 'blessing' }, failure: { text: t("game.124"), hp: -4, status: 'curse' } },
-    { label: t("game.125"), hint: t("game.126"), success: { text: t("game.127"), hp: 2, gold: 3, gainItem: 'potion' } },
-    { label: t('events.bells.touch'), hint: t('events.bells.touch_hint'), success: { text: t('events.bells.touch_result'), loseItem: true, status: 'curse' } },
-  ] },
   { id: 'ambush', category: 'battle', title: t('events.ambush.title'), place: t('events.ambush.place'), text: t('events.ambush.text'), choices: [] },
   { id: 'boss', category: 'battle', title: t('events.boss.title'), place: t('events.boss.place'), text: t('events.boss.text'), choices: [] },
 ];
@@ -142,11 +119,11 @@ function random(seed: number): [number, number] { const next = (Math.imul(seed, 
 export function currentScene(run: Run): Scene {
   if (run.sceneId !== 'heart') return scenes.find(s => s.id === run.sceneId)!;
   const help = run.flags.includes('wolf') || run.flags.includes('spirit');
-  return { id: 'heart', category: 'story', title: t("game.130"), place: t("game.131"), text: t("game.135", { value1: run.flags.includes('child') ? t("game.132") : '', value2: run.flags.includes('truth') ? t("game.133") : t("game.134") }), choices: [
-    { label: t("game.136"), hint: t("game.137", { value1: run.flags.includes('truth') ? 2 : 3 }), cost: undefined, success: { text: t("game.138") } },
-    { label: t("game.139"), hint: help ? t("game.140") : t("game.141"), stat: help ? undefined : 'de', difficulty: 6, success: { text: t("game.142") }, failure: { text: t("game.143"), hp: -5 } },
-    { label: t("game.144"), hint: t("game.145"), success: { text: t("game.146") } },
-  ] };
+  const scene = storyScene('heart');
+  scene.text = scene.text.replaceAll('{value1}', run.flags.includes('child') ? t('game.132') : '').replaceAll('{value2}', run.flags.includes('truth') ? t('game.133') : t('game.134'));
+  scene.choices[0].hint = scene.choices[0].hint.replaceAll('{value1}', String(run.flags.includes('truth') ? 2 : 3));
+  if (help) { scene.choices[1].stat = undefined; scene.choices[1].hint = storyText(stories.heart.choices[1].helpHint ?? stories.heart.choices[1].hint); }
+  return scene;
 }
 export function disabledReason(run: Run, index: number): string | null {
   const c = currentScene(run).choices[index];
@@ -166,7 +143,7 @@ export function choose(run: Run, index: number): Run {
   const [roll, seed] = random(run.seed), dice = Math.floor(roll * 6) + 1;
   const success = !choice.stat || dice + run.hero[choice.stat] >= (choice.difficulty ?? 5);
   const effect = success ? choice.success : choice.failure!;
-  let next: Run = { ...run, seed, hero: { ...run.hero, hp: Math.max(0, Math.min(run.hero.maxHp, run.hero.hp + (effect.hp ?? 0))), gold: run.hero.gold - (choice.cost ?? 0) + (effect.gold ?? 0), relics: run.hero.relics + (effect.relics ?? 0) }, progression: { ...run.progression, inventory: [...run.progression.inventory], potions: run.progression.potions + (effect.potions ?? 0) }, effects: run.effects.map(value => ({ ...value })), flags: effect.flag ? [...new Set([...run.flags, effect.flag])] : run.flags };
+  let next: Run = { ...run, seed, hero: { ...run.hero, hp: Math.max(0, Math.min(run.hero.maxHp, run.hero.hp + (effect.hp ?? 0))), gold: Math.max(0, run.hero.gold - (choice.cost ?? 0) + (effect.gold ?? 0)), relics: Math.max(0, run.hero.relics + (effect.relics ?? 0)) }, progression: { ...run.progression, inventory: [...run.progression.inventory], potions: Math.max(0, run.progression.potions + (effect.potions ?? 0)), energy: Math.max(0, Math.min(run.progression.maxEnergy, run.progression.energy + (effect.mental ?? 0))) }, effects: run.effects.map(value => ({ ...value })), flags: effect.flag ? [...new Set([...run.flags, effect.flag])] : run.flags };
   const changes: string[] = [];
   if (effect.gainItem) {
     const id = effect.gainItem;
@@ -186,8 +163,8 @@ export function choose(run: Run, index: number): Run {
     } else { next.hero.gold = Math.max(0, next.hero.gold - 3); changes.push(t('events.item.none')); }
   }
   if (effect.status) {
-    next.effects = [...next.effects.filter(value => value.id !== effect.status), { id: effect.status, battles: 3 }];
-    changes.push(t('events.effect.gain', { name: worldEffects[effect.status].name, battles: 3 }));
+    next.effects = [...next.effects.filter(value => value.id !== effect.status), { id: effect.status, battles: effect.statusBattles ?? 3 }];
+    changes.push(t('events.effect.gain', { name: worldEffects[effect.status].name, battles: effect.statusBattles ?? 3 }));
   }
   const result = `${choice.stat ? t("game.155", { value1: statNames[choice.stat], value2: run.hero[choice.stat], dice, difficulty: choice.difficulty ?? 5, value5: success ? t("game.153") : t("game.154") }) : ''}${effect.text}` + (changes.length ? '\n\n' + changes.join('\n') : '');
   const ending = next.hero.hp === 0 ? '안개에 남은 발자국' : scene.id === 'heart' ? index === 0 ? '모든 이름의 새벽' : index === 2 ? '숲의 새로운 등불' : success ? '다시 잡은 손' : '닿지 못한 손' : null;
@@ -242,7 +219,7 @@ export function advance(run: Run): Run {
     const fresh = pool.filter(scene => !run.visited.includes(scene.id));
     const candidates = fresh.length ? fresh : pool;
     const [pick, nextSeed] = random(seed);
-    const selected = candidates[Math.floor(pick * candidates.length)];
+    const selected = category === 'story' ? scenes.find(scene => scene.id === pickStory(pick))! : candidates[Math.floor(pick * candidates.length)];
     sceneId = selected.id;
     const next: Run = { ...run, seed: nextSeed, day: run.day + 1, sceneId, visited: [...run.visited, sceneId], result: null, battleReport: null, loot: [], transactionNotice: null, journal: eventCategory(run) === 'shop' ? [...run.journal, t('shop.journal')] : run.journal };
     return selected.category === 'battle' ? autoBattle(beginCombat(next)) : next;
@@ -292,7 +269,7 @@ export function decodeSave(raw: string | null): Save {
       r.transactionNotice ??= null;
       r.itemNotice ??= null;
       if (!(r.itemNotice === null || typeof r.itemNotice === 'string')) return empty;
-      if (!Array.isArray(r.loot) || !r.loot.every((id: unknown) => typeof id === 'string' && Object.hasOwn(itemCatalog, id)) || !Array.isArray(r.effects) || !r.effects.every((effect: WorldEffect) => effect && Object.hasOwn(worldEffects, effect.id) && Number.isInteger(effect.battles) && effect.battles >= 1 && effect.battles <= 3) || new Set(r.effects.map((effect: WorldEffect) => effect.id)).size !== r.effects.length || !(r.transactionNotice === null || typeof r.transactionNotice === 'string')) return empty;
+      if (!Array.isArray(r.loot) || !r.loot.every((id: unknown) => typeof id === 'string' && Object.hasOwn(itemCatalog, id)) || !Array.isArray(r.effects) || !r.effects.every((effect: WorldEffect) => effect && Object.hasOwn(worldEffects, effect.id) && Number.isInteger(effect.battles) && effect.battles >= 1 && effect.battles <= 99) || new Set(r.effects.map((effect: WorldEffect) => effect.id)).size !== r.effects.length || !(r.transactionNotice === null || typeof r.transactionNotice === 'string')) return empty;
       r.battleReport ??= null;
       const report = r.battleReport;
       if (report && (typeof report.enemy !== 'string' || !['startMental', 'endMental'].every(k => report[k] === undefined || (Number.isSafeInteger(report[k]) && report[k] >= 0)) || !['victory', 'defeat', 'retreat'].includes(report.outcome) || !['rounds', 'startHp', 'endHp', 'gold', 'exp', 'levels'].every(k => Number.isInteger(report[k]) && report[k] >= 0) || !Array.isArray(report.items) || !report.items.every((id: unknown) => typeof id === 'string' && Object.hasOwn(itemCatalog, id)) || !Array.isArray(report.log) || !report.log.every((line: unknown) => typeof line === 'string'))) return empty;

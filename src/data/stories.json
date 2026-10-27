@@ -1,0 +1,451 @@
+{
+  "gate": {
+    "kind": "start",
+    "weight": 0,
+    "title": {
+      "ko": "숲은 이름을 기억한다"
+    },
+    "place": {
+      "ko": "한양 성문 밖"
+    },
+    "text": {
+      "ko": "요괴가 민심을 어지럽히는 조선. 포도청에서 사령패를 받은 당신은 사라진 누이를 찾아 북악산에 들었다. 편지에는 단 한 문장이 남아 있었다. “숲이 네 이름을 부르면, 대답하지 마.”\n\n낡은 이정표 너머, 안개 속에서 작은 등불이 흔들린다. 당신은 열흘 안에 숲의 심장에 도착해야 한다."
+    },
+    "choices": [
+      {
+        "label": {
+          "ko": "등불을 따라간다"
+        },
+        "hint": {
+          "ko": "낯선 이를 만난다"
+        },
+        "cost": 0,
+        "success": {
+          "text": {
+            "ko": "등불의 주인은 길 잃은 아이였다. 아이는 당신의 손에 은빛 씨앗을 쥐여준다."
+          },
+          "relics": 1,
+          "gainItem": "charm",
+          "flag": "child"
+        }
+      },
+      {
+        "label": {
+          "ko": "편지의 숨은 문양을 읽는다"
+        },
+        "hint": {
+          "ko": "지 판정 · 난이도 5"
+        },
+        "cost": 0,
+        "stat": "ji",
+        "difficulty": 5,
+        "success": {
+          "text": {
+            "ko": "편지를 달빛에 비추자 숨은 지도가 드러난다. 누이는 이 길을 이미 걸었다."
+          },
+          "relics": 1,
+          "flag": "map",
+          "status": "blessing",
+          "statusBattles": 3
+        },
+        "failure": {
+          "text": {
+            "ko": "문양이 손끝을 태운다. 오래된 마법의 흔적만 알아냈다."
+          },
+          "hp": -3,
+          "status": "curse",
+          "statusBattles": 3
+        }
+      },
+      {
+        "label": {
+          "ko": "가면을 쓴 길잡이를 따라간다"
+        },
+        "hint": {
+          "ko": "소지품을 잃고 저주에 걸립니다"
+        },
+        "cost": 0,
+        "success": {
+          "text": {
+            "ko": "길잡이는 안개 속으로 사라졌다. 행낭이 가벼워지고 싸늘한 기운이 몸에 남았다."
+          },
+          "loseItem": true,
+          "status": "curse",
+          "statusBattles": 3
+        }
+      }
+    ]
+  },
+  "library": {
+    "kind": "random",
+    "weight": 1,
+    "title": {
+      "ko": "읽히기를 기다리는 이름"
+    },
+    "place": {
+      "ko": "무너진 서원"
+    },
+    "text": {
+      "ko": "나무뿌리 아래 책장이 끝없이 이어진다. 책등에는 이 숲에서 사라진 사람들의 이름이 적혀 있다.\n\n누이의 책은 마지막 장이 비어 있다."
+    },
+    "choices": [
+      {
+        "label": {
+          "ko": "비어 있는 장을 해독한다"
+        },
+        "hint": {
+          "ko": "지 판정 · 난이도 6"
+        },
+        "cost": 0,
+        "stat": "ji",
+        "difficulty": 6,
+        "success": {
+          "text": {
+            "ko": "누이는 숲에 갇힌 이름들을 지키고 있었다. 숲의 심장을 여는 주문을 알아냈다."
+          },
+          "relics": 1,
+          "flag": "truth",
+          "status": "blessing",
+          "statusBattles": 3
+        },
+        "failure": {
+          "text": {
+            "ko": "잉크가 손을 타고 기억을 마신다. 얼굴 하나가 잠시 떠오르지 않는다."
+          },
+          "hp": -4,
+          "loseItem": true,
+          "status": "curse",
+          "statusBattles": 3
+        }
+      },
+      {
+        "label": {
+          "ko": "누이의 책을 품에 넣는다"
+        },
+        "hint": {
+          "ko": "체력 3 소모 · 유물 1 획득"
+        },
+        "cost": 0,
+        "success": {
+          "text": {
+            "ko": "뿌리가 당신을 붙잡았지만 책을 놓지 않았다. 이제 누이의 이름은 당신 곁에 있다."
+          },
+          "hp": -3,
+          "relics": 1,
+          "gainItem": "blade"
+        }
+      },
+      {
+        "label": {
+          "ko": "책을 그대로 두고 쉰다"
+        },
+        "hint": {
+          "ko": "체력 3 회복"
+        },
+        "cost": 0,
+        "success": {
+          "text": {
+            "ko": "책장이 바람 없이 넘어간다. 꿈에서 누이가 당신의 손을 잡았다."
+          },
+          "hp": 3
+        }
+      }
+    ]
+  },
+  "pool": {
+    "kind": "random",
+    "weight": 1,
+    "title": {
+      "ko": "물속에 남겨진 어제"
+    },
+    "place": {
+      "ko": "기억의 샘"
+    },
+    "text": {
+      "ko": "샘물에 비친 얼굴은 어린 시절의 당신이다. 물속의 아이가 말한다.\n\n“그날 누이가 떠날 때, 왜 붙잡지 않았어?”"
+    },
+    "choices": [
+      {
+        "label": {
+          "ko": "도망치지 않고 대답한다"
+        },
+        "hint": {
+          "ko": "덕 판정 · 난이도 5"
+        },
+        "cost": 0,
+        "stat": "de",
+        "difficulty": 5,
+        "success": {
+          "text": {
+            "ko": "“이번에는 데려갈 거야.” 물속의 아이가 웃는다. 샘 바닥에서 별의 파편이 떠올랐다."
+          },
+          "hp": 2,
+          "relics": 1,
+          "status": "blessing",
+          "statusBattles": 3
+        },
+        "failure": {
+          "text": {
+            "ko": "대답은 끝내 목에 걸렸다. 차가운 기억이 가슴을 조인다."
+          },
+          "hp": -4,
+          "status": "curse",
+          "statusBattles": 3
+        }
+      },
+      {
+        "label": {
+          "ko": "물 한 모금을 마신다"
+        },
+        "hint": {
+          "ko": "체력 4 회복"
+        },
+        "cost": 0,
+        "success": {
+          "text": {
+            "ko": "어린 시절의 여름처럼 따뜻하다. 기억은 아프지만 살아갈 힘도 준다."
+          },
+          "hp": 4
+        }
+      },
+      {
+        "label": {
+          "ko": "샘에 작은 공물을 바친다"
+        },
+        "hint": {
+          "ko": "2냥 · 부적 획득"
+        },
+        "cost": 2,
+        "success": {
+          "text": {
+            "ko": "샘물이 잔잔해지며 삼재 부적을 밀어 올렸다."
+          },
+          "gainItem": "charm"
+        }
+      }
+    ]
+  },
+  "camp": {
+    "kind": "random",
+    "weight": 1,
+    "title": {
+      "ko": "불씨 하나의 온기"
+    },
+    "place": {
+      "ko": "버려진 야영지"
+    },
+    "text": {
+      "ko": "아직 온기가 남은 모닥불. 주인을 잃은 배낭 옆에는 덜 깎인 나무 새가 놓여 있다.\n\n오늘 밤만큼은 별이 보인다."
+    },
+    "choices": [
+      {
+        "label": {
+          "ko": "불을 살리고 잠든다"
+        },
+        "hint": {
+          "ko": "체력 5 회복"
+        },
+        "cost": 0,
+        "success": {
+          "text": {
+            "ko": "오랜만에 꿈 없는 잠을 잤다. 새벽의 숲은 잠깐 평범해 보인다."
+          },
+          "hp": 5,
+          "status": "blessing",
+          "statusBattles": 3
+        }
+      },
+      {
+        "label": {
+          "ko": "배낭의 흔적을 조사한다"
+        },
+        "hint": {
+          "ko": "지 판정 · 난이도 5"
+        },
+        "cost": 0,
+        "stat": "ji",
+        "difficulty": 5,
+        "success": {
+          "text": {
+            "ko": "배낭의 이중 바닥에 지도와 동전이 숨겨져 있었다."
+          },
+          "gold": 7,
+          "gainItem": "sword",
+          "flag": "map"
+        },
+        "failure": {
+          "text": {
+            "ko": "덫이 터졌다. 동전 몇 닢을 찾았지만 손가락을 다쳤다."
+          },
+          "hp": -3,
+          "gold": 2,
+          "loseItem": true,
+          "status": "curse",
+          "statusBattles": 3
+        }
+      },
+      {
+        "label": {
+          "ko": "낯선 여행자에게 배낭을 맡긴다"
+        },
+        "hint": {
+          "ko": "아이템 손실 · 저주"
+        },
+        "cost": 0,
+        "success": {
+          "text": {
+            "ko": "눈을 돌린 사이 여행자가 소지품을 가지고 달아났다. 모닥불이 푸르게 변했다."
+          },
+          "loseItem": true,
+          "status": "curse",
+          "statusBattles": 3
+        }
+      }
+    ]
+  },
+  "bells": {
+    "kind": "random",
+    "weight": 1,
+    "title": {
+      "ko": "울리지 않는 종"
+    },
+    "place": {
+      "ko": "폐허가 된 사찰"
+    },
+    "text": {
+      "ko": "종탑에는 혀 없는 종이 매달려 있다. 의자마다 투명한 사람들이 앉아 당신을 바라본다.\n\n그들은 아주 오랫동안 마지막 종소리를 기다렸다."
+    },
+    "choices": [
+      {
+        "label": {
+          "ko": "검 손잡이로 종을 울린다"
+        },
+        "hint": {
+          "ko": "무 판정 · 난이도 5"
+        },
+        "cost": 0,
+        "stat": "mu",
+        "difficulty": 5,
+        "success": {
+          "text": {
+            "ko": "종소리가 숲을 흔든다. 사람들이 빛으로 사라지며 한 조각의 감사를 남겼다."
+          },
+          "relics": 1,
+          "flag": "freed",
+          "status": "blessing",
+          "statusBattles": 3
+        },
+        "failure": {
+          "text": {
+            "ko": "종의 무게를 버티지 못했다. 무너진 돌조각이 다리를 스쳤다."
+          },
+          "hp": -4,
+          "status": "curse",
+          "statusBattles": 3
+        }
+      },
+      {
+        "label": {
+          "ko": "그들의 이야기를 듣는다"
+        },
+        "hint": {
+          "ko": "체력 2 회복 · 금 3 획득"
+        },
+        "cost": 0,
+        "success": {
+          "text": {
+            "ko": "이름 하나하나를 기억해 주자 유령들은 웃었다. 오래된 동전이 무릎 위에 남았다."
+          },
+          "hp": 2,
+          "gold": 3,
+          "gainItem": "potion"
+        }
+      },
+      {
+        "label": {
+          "ko": "붉은 글씨가 적힌 종을 만진다"
+        },
+        "hint": {
+          "ko": "아이템 손실 · 저주"
+        },
+        "cost": 0,
+        "success": {
+          "text": {
+            "ko": "종에 묶인 원한이 손끝으로 스며들고 소지품 하나가 재로 변했다."
+          },
+          "loseItem": true,
+          "status": "curse",
+          "statusBattles": 3
+        }
+      }
+    ]
+  },
+  "heart": {
+    "kind": "ending",
+    "weight": 0,
+    "title": {
+      "ko": "숲의 심장"
+    },
+    "place": {
+      "ko": "이름들의 나무"
+    },
+    "text": {
+      "ko": "{value1}거대한 나무의 속에서 누이가 눈을 뜬다. “나를 데려가면, 이곳의 이름들은 잊혀져.”\n\n{value2}"
+    },
+    "choices": [
+      {
+        "label": {
+          "ko": "숲에 묶인 모든 이름을 풀어준다"
+        },
+        "hint": {
+          "ko": "유물 {value1}개 필요"
+        },
+        "cost": 0,
+        "success": {
+          "text": {
+            "ko": "기억들이 별처럼 흩어진다."
+          }
+        }
+      },
+      {
+        "label": {
+          "ko": "누이의 손을 잡고 숲을 떠난다"
+        },
+        "hint": {
+          "ko": "덕 판정 · 난이도 6"
+        },
+        "cost": 0,
+        "stat": "de",
+        "difficulty": 6,
+        "helpHint": {
+          "ko": "숲의 친구가 탈출을 돕는다"
+        },
+        "success": {
+          "text": {
+            "ko": "다시는 손을 놓지 않는다."
+          }
+        },
+        "failure": {
+          "text": {
+            "ko": "숲은 아직 당신을 놓아주지 않는다."
+          },
+          "hp": -5
+        }
+      },
+      {
+        "label": {
+          "ko": "누이와 함께 숲의 지기가 된다"
+        },
+        "hint": {
+          "ko": "숲에 남는 결말"
+        },
+        "cost": 0,
+        "success": {
+          "text": {
+            "ko": "이제 당신이 길 잃은 이의 등불이 된다."
+          }
+        }
+      }
+    ]
+  }
+}

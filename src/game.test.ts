@@ -1,3 +1,4 @@
+import {stories,storyScene,pickStory} from './stories';
 import { monsters, rollMonsterDrop } from './monsters';
 import { createItemCatalog, type ItemData } from './items';
 import rawItems from './data/items.json';
@@ -694,4 +695,21 @@ test('Excel monster level gates, combat stats and configured drops drive actual 
     assert.equal(rollMonsterDrop([{item:'potion',probability:0.25}],0.249),'potion');
     assert.equal(rollMonsterDrop([{item:'potion',probability:0.25}],0.25),null);
   } finally {for(const key of Object.keys(monsters))delete monsters[key];Object.assign(monsters,original);}
+});
+
+test('story weights respect zero and boundaries; Excel choices apply resources, item and lasting status', () => {
+  const original = structuredClone(stories);
+  try {
+    for (const id of Object.keys(stories)) delete stories[id];
+    const template=original.camp;
+    stories.a={...structuredClone(template),weight:1};stories.b={...structuredClone(template),weight:3};stories.disabled={...structuredClone(template),weight:0};
+    assert.equal(pickStory(0),'a');assert.equal(pickStory(0.249),'a');assert.equal(pickStory(0.25),'b');assert.equal(pickStory(0.99999),'b');
+    const oldScene=scenes.find(s=>s.id==='camp')!;
+    stories.camp={...structuredClone(template),weight:1};
+    stories.camp.choices[0].success={text:{ko:'수정된 결과'},hp:-3,mental:7,gold:-99,relics:-9,gainItem:'spirit_potion',status:'blessing',statusBattles:8};
+    const index=scenes.indexOf(oldScene);scenes[index]=storyScene('camp');
+    try {const base={...newRun('warrior',1),sceneId:'camp'};base.progression.energy=0;const result=choose(base,0);
+      assert.ok(result.result!.includes('수정된 결과'));assert.equal(result.hero.hp,base.hero.hp-3);assert.equal(result.progression.energy,7);assert.equal(result.hero.gold,0);assert.equal(result.hero.relics,0);assert.equal(result.progression.spiritPotions,2);assert.equal(result.effects[0].battles,8);assert.deepEqual(decodeSave(JSON.stringify({version:1,run:result,records:[]})).run,result);
+    }finally{scenes[index]=oldScene;}
+  }finally{for(const id of Object.keys(stories))delete stories[id];Object.assign(stories,original);}
 });
