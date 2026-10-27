@@ -308,5 +308,14 @@
   "progression.maximum": "레벨 {level} / {maxLevel} · 최고 레벨",
   "progression.remaining": "다음 레벨까지 경험치 {remaining}",
   "progression.banked": "보유 경험치 {exp}",
-  "progression.label": "레벨 경험치"
+  "progression.label": "레벨 경험치",
+  "growth.reward": "스탯 포인트 {points} 획득",
+  "growth.open": "레벨업 스탯 분배 ({points}P)",
+  "growth.title": "레벨업 스탯 분배",
+  "growth.available": "보유 포인트 {points} · 분배 예정 {spent} · 남길 포인트 {remaining}",
+  "growth.help": "레벨업마다 받은 포인트를 원하는 스탯에 분배하세요. 일부만 사용하고 나머지는 보관할 수 있습니다. 확정 후에는 되돌릴 수 없습니다.",
+  "growth.confirm": "분배 확정",
+  "growth.back": "게임으로 돌아가기",
+  "growth.preview": "현재 {base} + 추가 {added} → {total}",
+  "growth.pending": "미분배 스탯 포인트 {points}"
 }

@@ -1858,5 +1858,59 @@
     "group": "progression",
     "context": "src/LevelProgress.tsx",
     "notes": ""
+  },
+  {
+    "id": "growth.reward",
+    "group": "growth",
+    "context": "src/LevelUpAllocationPanel.tsx",
+    "notes": "{points}"
+  },
+  {
+    "id": "growth.open",
+    "group": "growth",
+    "context": "src/LevelUpAllocationPanel.tsx",
+    "notes": "{points}"
+  },
+  {
+    "id": "growth.title",
+    "group": "growth",
+    "context": "src/LevelUpAllocationPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "growth.available",
+    "group": "growth",
+    "context": "src/LevelUpAllocationPanel.tsx",
+    "notes": "{points}, {spent}, {remaining}"
+  },
+  {
+    "id": "growth.help",
+    "group": "growth",
+    "context": "src/LevelUpAllocationPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "growth.confirm",
+    "group": "growth",
+    "context": "src/LevelUpAllocationPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "growth.back",
+    "group": "growth",
+    "context": "src/LevelUpAllocationPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "growth.preview",
+    "group": "growth",
+    "context": "src/LevelUpAllocationPanel.tsx",
+    "notes": "{base}, {added}, {total}"
+  },
+  {
+    "id": "growth.pending",
+    "group": "growth",
+    "context": "src/LevelUpAllocationPanel.tsx",
+    "notes": "{points}"
   }
 ]

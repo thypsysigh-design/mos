@@ -1,7 +1,7 @@
 import { t } from './localization';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { MAX_LEVEL, gainExperience, experienceForNextLevel, emptyAllocation, validAllocation, advance, archive, autoBattle, combatStats, maxHealth, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
+import { spendStatPoints, canSpendStatPoints, MAX_LEVEL, gainExperience, experienceForNextLevel, emptyAllocation, validAllocation, advance, archive, autoBattle, combatStats, maxHealth, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
 
 test('same seed and choices produce the same adventure', () => {
   let a = newRun('sorcerer', 123), b = newRun('sorcerer', 123);
@@ -394,4 +394,65 @@ test('old uncapped saves are clamped without deleting their character or story',
   assert.deepEqual([restored.progression.level, restored.progression.exp], [30, 7]);
   assert.equal(restored.hero.maxHp, base.hero.maxHp + 116);
   assert.deepEqual(restored.journal, old.journal);
+});
+
+test('each real level grants two points, multi-level rewards accumulate, cap gives none', () => {
+  const base = newRun('warrior', 1);
+  assert.equal(base.progression.statPoints, 0);
+  assert.equal(gainExperience(base, 10).progression.statPoints, 2);
+  assert.equal(gainExperience(base, 65).progression.statPoints, 6);
+  const max = gainExperience(base, 4350);
+  assert.equal(max.progression.statPoints, 58);
+  assert.equal(gainExperience(max, 1000).progression.statPoints, 58);
+  const ready = beginCombat(gainExperience(base, 9)); ready.combat!.hp = 1;
+  const won = autoBattle(ready);
+  assert.equal(won.progression.level, 2);
+  assert.equal(won.progression.statPoints, 2);
+  assert.equal(autoBattle(won).progression.statPoints, 2);
+});
+
+test('level points can be spent partially or across stats and cannot be overdrawn or refunded', () => {
+  const base = gainExperience(newRun('swordsman', 1), 65);
+  const first = spendStatPoints(base, { ...emptyAllocation(), mu: 1, ji: 1, de: 1 });
+  assert.equal(first.progression.statPoints, 3);
+  assert.equal(first.hero.mu, base.hero.mu + 1);
+  assert.equal(first.hero.ji, base.hero.ji + 1);
+  assert.equal(first.hero.de, base.hero.de + 1);
+  const all = spendStatPoints(first, { ...emptyAllocation(), un: 3 });
+  assert.equal(all.progression.statPoints, 0);
+  assert.equal(all.hero.un, base.hero.un + 3);
+  for (const allocation of [{ ...emptyAllocation(), mu: 1 }, { ...emptyAllocation(), mu: -1 }, { ...emptyAllocation(), ji: 0.5 }, emptyAllocation()]) {
+    assert.equal(canSpendStatPoints(all, allocation), false);
+    assert.equal(spendStatPoints(all, allocation), all);
+  }
+  assert.equal(base.progression.statPoints, 6);
+});
+
+test('vitality points increase max health and current health equally; dead characters cannot allocate', () => {
+  const base = gainExperience(newRun('healer', 1), 10);
+  const hurt = { ...base, hero: { ...base.hero, hp: base.hero.maxHp - 7 } };
+  const allocated = spendStatPoints(hurt, { ...emptyAllocation(), che: 2 });
+  assert.equal(allocated.hero.maxHp, hurt.hero.maxHp + 8);
+  assert.equal(allocated.hero.hp, hurt.hero.hp + 8);
+  assert.equal(allocated.hero.maxHp - allocated.hero.hp, 7);
+  const dead = { ...hurt, hero: { ...hurt.hero, hp: 0 } };
+  assert.equal(spendStatPoints(dead, { ...emptyAllocation(), che: 2 }), dead);
+  const combat = beginCombat(hurt);
+  assert.equal(spendStatPoints(combat, { ...emptyAllocation(), mu: 1 }), combat);
+});
+
+test('unused and spent level points survive reload; older saves are credited exactly once', () => {
+  const base = gainExperience(newRun('swordsman', 1), 65);
+  const spent = spendStatPoints(base, { ...emptyAllocation(), mu: 2 });
+  const restored = decodeSave(JSON.stringify({ version: 1, run: spent, records: [] })).run!;
+  assert.deepEqual(restored, spent);
+  const legacy: any = { ...base, progression: { ...base.progression } }; delete legacy.progression.statPoints;
+  const credited = decodeSave(JSON.stringify({ version: 1, run: legacy, records: [] })).run!;
+  assert.equal(credited.progression.statPoints, 6);
+  const used = spendStatPoints(credited, { ...emptyAllocation(), un: 6 });
+  const again = decodeSave(JSON.stringify({ version: 1, run: used, records: [] })).run!;
+  assert.equal(again.progression.statPoints, 0);
+  assert.equal(again.hero.un, base.hero.un + 6);
+  const corrupt = { ...base, progression: { ...base.progression, statPoints: 7 } };
+  assert.equal(decodeSave(JSON.stringify({ version: 1, run: corrupt, records: [] })).run, null);
 });

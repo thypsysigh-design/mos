@@ -4,8 +4,9 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { emptyAllocation, validAllocation, advance, archive, autoBattle, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, statNames, type Role, type Save, type Stat } from './src/game';
+import { spendStatPoints, emptyAllocation, validAllocation, advance, archive, autoBattle, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, statNames, type StatAllocation, type Role, type Save, type Stat } from './src/game';
 
+import { LevelUpAllocationPanel } from './src/LevelUpAllocationPanel';
 import { LevelProgress } from './src/LevelProgress';
 import { StatAllocationPanel } from './src/StatAllocationPanel';
 import { BattleResult, EquipmentPanel } from './src/CombatPanel';
@@ -29,7 +30,7 @@ export default function App() {
   const [readFailed, setReadFailed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<'adventure' | 'journal' | 'records' | 'equipment'>('adventure');
-  const [screen, setScreen] = useState<'index' | 'prologue' | 'allocation' | 'game'>('index');
+  const [screen, setScreen] = useState<'index' | 'prologue' | 'allocation' | 'growth' | 'game'>('index');
   const [role, setRole] = useState<Role>('swordsman');
   const [allocation, setAllocation] = useState(emptyAllocation);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
@@ -55,6 +56,7 @@ export default function App() {
   function start() { if (!validAllocation(allocation)) return; setSave(s => ({ ...s, run: newRun(role, Date.now(), allocation) })); setAllocation(emptyAllocation()); setTab('adventure'); setScreen('game'); }
   function select(index: number) { setSave(s => s.run ? archive(s, choose(s.run, index)) : s); }
   function wear(id: string) { setSave(s => s.run ? { ...s, run: equip(s.run, id) } : s); }
+  function allocateGrowth(points: StatAllocation) { setSave(s => s.run ? { ...s, run: spendStatPoints(s.run, points) } : s); }
   function next() { setSave(s => s.run ? { ...s, run: advance(s.run) } : s); }
   function abandon() { setConfirmAbandon(true); }
   const run = save.run;
@@ -89,12 +91,13 @@ export default function App() {
         <Button title={t("button.start_game")} onPress={start} disabled={!validAllocation(allocation)} />
         <Button title={t("button.back_to_class")} secondary onPress={() => setScreen('prologue')} />
       </>}
+      {screen === 'growth' && run && <><LevelUpAllocationPanel run={run} onConfirm={allocateGrowth} /><Button title={t('growth.back')} secondary onPress={() => setScreen('game')} /></>}
       {screen === 'game' && tab === 'adventure' && run && scene && <>
         <View style={styles.dayRow}><Text style={styles.eyebrow}>{t("ui.026", { value1: String(run.day).padStart(2, '0'), place: scene.place })}</Text><Text style={styles.muted}>{t("ui.027", { day: run.day })}</Text></View>
         <View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${run.day * 10}%` }]} /></View>
         <View style={styles.stats}><View style={{ flex: 1 }}><Text style={styles.muted}>{t("ui.028")}</Text><Text style={styles.statValue}>{run.hero.hp}<Text style={styles.muted}> / {run.hero.maxHp}</Text></Text><View style={styles.hpTrack}><View style={[styles.hpFill, { width: `${run.hero.hp / run.hero.maxHp * 100}%` }]} /></View></View><View style={styles.statCell}><Text style={styles.muted}>{t("ui.029")}</Text><Text style={styles.statValue}>{run.hero.gold}</Text></View><View style={styles.statCell}><Text style={styles.muted}>{t("ui.030")}</Text><Text style={[styles.statValue, { color: colors.gold }]}>✧ {run.hero.relics}</Text></View></View>
         <View style={styles.traits}>{(Object.keys(statNames) as Stat[]).map(s => <Text key={s} style={styles.trait}>{statNames[s]} {run.hero[s]}</Text>)}<Text style={styles.muted}>{t("ui.031", { name: roles[run.role].name, level: run.progression.level })}</Text></View>
-        <LevelProgress run={run} />
+        <LevelProgress run={run} onAllocate={() => setScreen('growth')} />
         {run.ending ? <View style={styles.ending}><Text style={styles.endingMark}>✧</Text><Text style={styles.eyebrow}>{t("ui.032")}</Text><Text style={styles.title}>{endingText(run.ending)}</Text><Text style={styles.body}>{endings[run.ending]}</Text>{run.battleReport && <BattleResult report={run.battleReport} />}<Text style={styles.footnote}>{t("ui.033", { day: run.day, relics: run.hero.relics })}</Text><Button title={t("ui.034")} onPress={() => { setSave(s => ({ ...s, run: null })); setScreen('prologue'); }} /><Button title={t("ui.035")} onPress={() => setTab('journal')} secondary /></View> : <>
           {!run.combat && <View style={styles.story}><Text style={styles.storyMark}>封</Text><Text style={[styles.title, { color: '#332311' }]}>{scene.title}</Text><View style={styles.divider} /><Text style={[styles.body, { color: '#59462f' }]}>{scene.text}</Text></View>}
           {run.result ? <View style={styles.result}><Text style={styles.eyebrow}>{t("ui.036")}</Text>{run.battleReport ? <BattleResult report={run.battleReport} /> : <Text accessibilityLiveRegion="polite" style={styles.body}>{run.result}</Text>}<Button title={run.day === 9 ? t("ui.037") : t("ui.038")} onPress={next} /></View> : <><View style={styles.sectionHeading}><Text style={styles.sectionTitle}>{t("ui.039")}</Text><Text style={styles.muted}>{t("ui.040", { length: scene.choices.length })}</Text></View>{scene.choices.map((c, i) => { const reason = disabledReason(run, i); return <Pressable key={`${scene.id}-${i}`} accessibilityRole="button" accessibilityState={{ disabled: !!reason }} disabled={!!reason} onPress={() => select(i)} style={({ pressed }) => [styles.choice, reason && { opacity: 0.45 }, pressed && { borderColor: colors.gold, backgroundColor: '#443220' }]}><Text style={styles.choiceNumber}>{String(i + 1).padStart(2, '0')}</Text><View style={{ flex: 1 }}><Text style={styles.choiceTitle}>{c.label}</Text><Text style={styles.muted}>{reason ?? c.hint}</Text></View><Text style={{ color: colors.gold }}>↗</Text></Pressable>; })}</>}
@@ -102,7 +105,7 @@ export default function App() {
           <Pressable accessibilityRole="button" onPress={abandon} style={{ alignSelf: 'center', padding: 20 }}><Text style={styles.muted}>{t("ui.044")}</Text></Pressable>
         </>}
       </>}
-      {screen === 'game' && tab === 'equipment' && <>{run ? <EquipmentPanel run={run} onEquip={wear} /> : <><Text style={styles.title}>{t("ui.045")}</Text><Text style={styles.body}>{t("ui.046")}</Text><Button title={t("ui.047")} onPress={() => setTab('adventure')} /></>}</>}
+      {screen === 'game' && tab === 'equipment' && <>{run ? <EquipmentPanel run={run} onEquip={wear} onAllocate={() => setScreen('growth')} /> : <><Text style={styles.title}>{t("ui.045")}</Text><Text style={styles.body}>{t("ui.046")}</Text><Button title={t("ui.047")} onPress={() => setTab('adventure')} /></>}</>}
       {screen === 'game' && tab === 'journal' && <><Text style={styles.eyebrow}>{t("ui.048")}</Text><Text style={styles.title}>{t("ui.049")}</Text><Text style={styles.body}>{t("ui.050")}</Text>{run ? [...run.journal].reverse().map((entry, i) => <View style={styles.journalEntry} key={i}><Text style={styles.eyebrow}>{t("ui.051", { value1: String(run.journal.length - i).padStart(2, '0') })}</Text><Text style={styles.body}>{entry}</Text></View>) : <View style={styles.empty}><Text style={styles.emptyMark}>✎</Text><Text style={styles.body}>{t("ui.052")}</Text><Button title={t("ui.053")} onPress={() => setTab('adventure')} /></View>}</>}
       {screen === 'game' && tab === 'records' && <><Text style={styles.eyebrow}>{t("ui.054")}</Text><Text style={styles.title}>{t("ui.055")}</Text><Text style={styles.body}>{t("ui.056")}</Text><View style={styles.summary}><Text style={styles.statValue}>{save.records.length} <Text style={styles.muted}>{t("ui.057")}</Text></Text><Text style={styles.statValue}>{new Set(save.records.map(r => r.ending)).size}<Text style={styles.muted}>{t("ui.058")}</Text></Text></View>{save.records.length ? save.records.map(r => <View key={r.id} style={styles.journalEntry}><Text style={styles.eyebrow}>{roles[r.role].name}</Text><Text style={styles.recordTitle}>{endingText(r.ending)}</Text><Text style={styles.muted}>{t("ui.059", { days: r.days, relics: r.relics })}</Text></View>) : <View style={styles.empty}><Text style={styles.emptyMark}>✧</Text><Text style={styles.body}>{t("ui.060")}</Text></View>}<Text style={styles.footnote}>{t("ui.061")}</Text></>}
     </ScrollView>

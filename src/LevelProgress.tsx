@@ -1,9 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { experienceForNextLevel, MAX_LEVEL, type Run } from './game';
 import { t } from './localization';
 
-export function LevelProgress({ run }: { run: Run }) {
+export function LevelProgress({ run, onAllocate }: { run: Run; onAllocate?: () => void }) {
   const { level, exp } = run.progression;
   const required = experienceForNextLevel(level);
   const ratio = required === null ? 1 : Math.min(1, exp / required);
@@ -15,6 +15,8 @@ export function LevelProgress({ run }: { run: Run }) {
     <Text style={styles.detail}>{required === null
       ? t('progression.banked', { exp })
       : t('progression.remaining', { remaining: Math.max(0, required - exp) })}</Text>
+    <Text style={styles.detail}>{t('growth.pending', { points: run.progression.statPoints })}</Text>
+    {run.progression.statPoints > 0 && run.hero.hp > 0 && onAllocate && <Pressable accessibilityRole="button" onPress={onAllocate} style={{ paddingVertical: 14 }}><Text style={styles.heading}>{t('growth.open', { points: run.progression.statPoints })}</Text></Pressable>}
   </View>;
 }
 const styles = StyleSheet.create({

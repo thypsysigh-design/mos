@@ -2,7 +2,7 @@ import { t } from './localization';
 import { LevelProgress } from './LevelProgress';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { equipment, roles, combatStats, statNames, statEffects, type Stat, type BattleReport, type Run } from './game';
+import { LEVEL_STAT_POINTS, equipment, roles, combatStats, statNames, statEffects, type Stat, type BattleReport, type Run } from './game';
 
 export function BattleResult({ report }: { report: BattleReport }) {
   const outcome = report.outcome === 'victory' ? t("combat_ui.001") : report.outcome === 'defeat' ? t("combat_ui.002") : t("combat_ui.003");
@@ -13,18 +13,19 @@ export function BattleResult({ report }: { report: BattleReport }) {
     <Text style={[s.detail, { color: '#59462f' }]}>{t("combat_ui.007", { gold: report.gold, exp: report.exp, value3: report.outcome === 'victory' ? t("combat_ui.006") : '' })}</Text>
     {report.items.map(id => <Text key={id} style={[s.detail, { color: '#8b2924' }]}>{t("combat_ui.008", { name: equipment[id].name })}</Text>)}
     {report.levels > 0 && <Text style={[s.detail, { color: '#8b2924' }]}>{t("combat_ui.009", { levels: report.levels })}</Text>}
+    {report.levels > 0 && <Text style={[s.detail, { color: '#8b2924' }]}>{t('growth.reward', { points: report.levels * LEVEL_STAT_POINTS })}</Text>}
     <Text style={[s.help, { color: '#786343' }]}>{t("combat_ui.010")}</Text>
     <Text style={s.kicker}>{t("combat_ui.011")}</Text>
     <View style={s.log}>{report.log.map((line, i) => <Text key={i} style={s.line}>{line}</Text>)}</View>
   </View>;
 }
-export function EquipmentPanel({ run, onEquip }: { run: Run; onEquip: (id: string) => void }) {
+export function EquipmentPanel({ run, onEquip, onAllocate }: { run: Run; onEquip: (id: string) => void; onAllocate?: () => void }) {
   const stats = combatStats(run);
   return <View>
     <Text style={s.enemy}>{t("ui.045")}</Text>
     <Text style={s.itemName}>{roles[run.role].name} · {roles[run.role].description}</Text>
     <Text style={s.help}>{t("combat_ui.012")}</Text>
-    <LevelProgress run={run} />
+    <LevelProgress run={run} onAllocate={onAllocate} />
     <Text style={s.detail}>{t("combat_ui.014", { potions: run.progression.potions })}</Text>
     <View style={s.item}>
       <Text style={s.itemName}>{t("combat_ui.015")}</Text>

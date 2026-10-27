@@ -5,6 +5,7 @@ export type Stat = 'mu' | 'ji' | 'de' | 'che' | 'un';
 export type StatAllocation = Record<Stat, number>;
 export const CREATION_POINTS = 15;
 export const MAX_LEVEL = 30;
+export const LEVEL_STAT_POINTS = 2;
 export function experienceForNextLevel(level: number): number | null { return level >= MAX_LEVEL ? null : level * 10; }
 export function emptyAllocation(): StatAllocation { return { mu: 0, ji: 0, de: 0, che: 0, un: 0 }; }
 export function allocationTotal(allocation: StatAllocation): number { return allocation.mu + allocation.ji + allocation.de + allocation.che + allocation.un; }
@@ -16,7 +17,7 @@ export type Choice = { label: string; hint: string; stat?: Stat; difficulty?: nu
 type Effect = { text: string; hp?: number; gold?: number; relics?: number; flag?: string; potions?: number };
 export type Scene = { id: string; title: string; place: string; text: string; choices: Choice[] };
 export type Combat = { enemy: string; hp: number; maxHp: number; attack: number; turn: number; intent: 'strike' | 'heavy' | 'recover'; log: string[]; boss: boolean; damageType: 'physical' | 'magic'; physicalDefense: number; magicDefense: number; playerBuff: number; enemyDebuff: number };
-export type Progression = { level: number; exp: number; potions: number; energy: number; inventory: string[]; weapon: string | null; armor: string | null };
+export type Progression = { level: number; exp: number; statPoints: number; potions: number; energy: number; inventory: string[]; weapon: string | null; armor: string | null };
 export type BattleReport = { enemy: string; outcome: 'victory' | 'defeat' | 'retreat'; rounds: number; startHp: number; endHp: number; gold: number; exp: number; items: string[]; levels: number; log: string[] };
 export type Run = { role: Role; day: number; seed: number; hero: Hero; sceneId: string; visited: string[]; flags: string[]; journal: string[]; result: string | null; ending: string | null; combat: Combat | null; progression: Progression; battleReport: BattleReport | null };
 export type RecordEntry = { id: string; role: Role; ending: string; days: number; relics: number };
@@ -97,7 +98,7 @@ export function newRun(role: Role, seed = Date.now(), allocation?: StatAllocatio
   if (allocation) for (const key of Object.keys(stats) as Stat[]) stats[key] += allocation[key];
   return { role, seed: seed >>> 0, day: 1, hero: { ...stats, hp: maxHealth(stats.che, 1), maxHp: maxHealth(stats.che, 1), gold: 8, relics: 0 }, sceneId: 'gate', visited: ['gate'], flags: [], journal: [t("game.129")], result: null, ending: null, combat: null, progression: initialProgression(), battleReport: null };
 }
-export function initialProgression(): Progression { return { level: 1, exp: 0, potions: 2, energy: 3, inventory: [], weapon: null, armor: null }; }
+export function initialProgression(): Progression { return { level: 1, exp: 0, statPoints: 0, potions: 2, energy: 3, inventory: [], weapon: null, armor: null }; }
 export function gainExperience(run: Run, amount: number): Run {
   if (!Number.isSafeInteger(amount) || amount < 0) throw new Error('Experience reward must be a nonnegative safe integer');
   const hero = { ...run.hero }, progression = { ...run.progression };
@@ -107,10 +108,27 @@ export function gainExperience(run: Run, amount: number): Run {
   while (progression.level < MAX_LEVEL && progression.exp >= progression.level * 10) {
     progression.exp -= progression.level * 10;
     progression.level++;
+    progression.statPoints += LEVEL_STAT_POINTS;
     hero.maxHp += 4;
     hero.hp = Math.min(hero.maxHp, hero.hp + 8);
   }
   return { ...run, hero, progression };
+}
+export function canSpendStatPoints(run: Run, allocation: StatAllocation): boolean {
+  if (run.combat || run.hero.hp <= 0) return false;
+  const keys: Stat[] = ['mu', 'ji', 'de', 'che', 'un'];
+  if (!keys.every(key => Number.isSafeInteger(allocation[key]) && allocation[key] >= 0)) return false;
+  const total = allocationTotal(allocation);
+  return total > 0 && total <= run.progression.statPoints;
+}
+export function spendStatPoints(run: Run, allocation: StatAllocation): Run {
+  if (!canSpendStatPoints(run, allocation)) return run;
+  const hero = { ...run.hero };
+  for (const key of Object.keys(statNames) as Stat[]) hero[key] += allocation[key];
+  // Preserve the existing injury rather than healing it through point allocation.
+  hero.maxHp += allocation.che * 4;
+  hero.hp += allocation.che * 4;
+  return { ...run, hero, progression: { ...run.progression, statPoints: run.progression.statPoints - allocationTotal(allocation) } };
 }
 function random(seed: number): [number, number] { const next = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return [next / 4294967296, next]; }
 export function currentScene(run: Run): Scene {
@@ -200,6 +218,8 @@ export function decodeSave(raw: string | null): Save {
         r.hero.hp = Math.min(r.hero.hp, r.hero.maxHp);
         p.level = MAX_LEVEL;
       }
+      if (!Object.hasOwn(p, 'statPoints')) p.statPoints = (p.level - 1) * LEVEL_STAT_POINTS;
+      if (!Number.isSafeInteger(p.statPoints) || p.statPoints < 0 || p.statPoints > (p.level - 1) * LEVEL_STAT_POINTS) return empty;
       if (r.combat && (!['hp', 'maxHp', 'attack', 'turn'].every(k => Number.isInteger(r.combat[k]) && r.combat[k] > 0) || r.combat.hp > r.combat.maxHp || !['physical', 'magic'].includes(r.combat.damageType) || !['playerBuff', 'enemyDebuff'].every(k => Number.isInteger(r.combat[k]) && r.combat[k] >= 0 && r.combat[k] <= 3) || !['physicalDefense', 'magicDefense'].every(k => Number.isInteger(r.combat[k]) && r.combat[k] >= 0) || !['strike', 'heavy', 'recover'].includes(r.combat.intent) || typeof r.combat.enemy !== 'string' || typeof r.combat.boss !== 'boolean' || !Array.isArray(r.combat.log) || !r.combat.log.every((line: unknown) => typeof line === 'string') || r.result || r.ending)) return empty;
     }
     return s;
@@ -279,7 +299,7 @@ export function battleTurn(run: Run, action: BattleAction): Run {
     if (found) progression.inventory.push(drop);
     log.push(t("game.186", { reward: reward, value2: combat.boss ? 12 : 6, value3: found ? t("game.185", { name: equipment[drop].name }) : '' }));
     const grown = gainExperience({ ...run, hero, progression }, combat.boss ? 12 : 6);
-    for (let level = progression.level + 1; level <= grown.progression.level; level++) log.push(t("game.187", { level }));
+    for (let level = progression.level + 1; level <= grown.progression.level; level++) log.push(t("game.187", { level }), t('growth.reward', { points: LEVEL_STAT_POINTS }));
     return { ...grown, seed, combat: null, result: log.join('\n'), ending: combat.boss ? '모든 이름의 새벽' : null, journal: [...run.journal, t("game.188", { day: run.day, enemy: combat.enemy, value3: [...combat.log, ...log].join('\n') })] };
   }
   if (combat.intent === 'recover') { combat.hp = Math.min(combat.maxHp, combat.hp + 3); log.push(t("game.189", { enemy: combat.enemy })); }
