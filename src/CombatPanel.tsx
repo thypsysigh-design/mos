@@ -2,7 +2,7 @@ import { t } from './localization';
 import { LevelProgress } from './LevelProgress';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { LEVEL_STAT_POINTS, equipment, roles, combatStats, statNames, statEffects, type Stat, type BattleReport, type Run } from './game';
+import { itemCatalog, LEVEL_STAT_POINTS, equipment, roles, combatStats, statNames, statEffects, type Stat, type BattleReport, type Run } from './game';
 
 export function BattleResult({ report }: { report: BattleReport }) {
   const outcome = report.outcome === 'victory' ? t("combat_ui.001") : report.outcome === 'defeat' ? t("combat_ui.002") : t("combat_ui.003");
@@ -11,10 +11,11 @@ export function BattleResult({ report }: { report: BattleReport }) {
     <Text accessibilityLiveRegion="polite" style={[s.enemy, { color: '#332311' }]}>{outcome} · {report.enemy}</Text>
     <Text style={[s.detail, { color: '#59462f' }]}>{t("combat_ui.005", { startHp: report.startHp, endHp: report.endHp })}</Text>
     <Text style={[s.detail, { color: '#59462f' }]}>{t("combat_ui.007", { gold: report.gold, exp: report.exp, value3: report.outcome === 'victory' ? t("combat_ui.006") : '' })}</Text>
-    {report.items.map(id => <Text key={id} style={[s.detail, { color: '#8b2924' }]}>{t("combat_ui.008", { name: equipment[id].name })}</Text>)}
+    {report.items.map(id => <Text key={id} style={[s.detail, { color: '#8b2924' }]}>{t("combat_ui.008", { name: itemCatalog[id as keyof typeof itemCatalog].name })}</Text>)}
     {report.levels > 0 && <Text style={[s.detail, { color: '#8b2924' }]}>{t("combat_ui.009", { levels: report.levels })}</Text>}
     {report.levels > 0 && <Text style={[s.detail, { color: '#8b2924' }]}>{t('growth.reward', { points: report.levels * LEVEL_STAT_POINTS })}</Text>}
     <Text style={[s.help, { color: '#786343' }]}>{t("combat_ui.010")}</Text>
+    <Text style={s.help}>{t("events.drop.rate")}</Text>
     <Text style={s.kicker}>{t("combat_ui.011")}</Text>
     <View style={s.log}>{report.log.map((line, i) => <Text key={i} style={s.line}>{line}</Text>)}</View>
   </View>;

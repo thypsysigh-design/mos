@@ -4,8 +4,9 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { spendStatPoints, emptyAllocation, validAllocation, advance, archive, autoBattle, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, statNames, type StatAllocation, type Role, type Save, type Stat } from './src/game';
+import { buyItem, sellItem, worldEffects, spendStatPoints, emptyAllocation, validAllocation, advance, archive, prepareEvent, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, statNames, type ItemId, type StatAllocation, type Role, type Save, type Stat } from './src/game';
 
+import { ShopPanel } from './src/ShopPanel';
 import { LevelUpAllocationPanel } from './src/LevelUpAllocationPanel';
 import { LevelProgress } from './src/LevelProgress';
 import { StatAllocationPanel } from './src/StatAllocationPanel';
@@ -41,7 +42,8 @@ export default function App() {
     try {
       const raw = await AsyncStorage.getItem(STORAGE);
       const decoded = decodeSave(raw);
-      setSave(decoded.run?.combat ? archive(decoded, autoBattle(decoded.run)) : decoded);
+      const prepared = decoded.run ? prepareEvent(decoded.run) : null;
+      setSave(prepared && prepared !== decoded.run ? archive(decoded, prepared) : decoded);
       setError(raw && !decoded.run && decoded.records.length === 0 && raw !== JSON.stringify(empty) ? t("ui.006") : null);
       setLoaded(true);
     } catch { setReadFailed(true); setError(t("ui.007")); }
@@ -57,7 +59,9 @@ export default function App() {
   function select(index: number) { setSave(s => s.run ? archive(s, choose(s.run, index)) : s); }
   function wear(id: string) { setSave(s => s.run ? { ...s, run: equip(s.run, id) } : s); }
   function allocateGrowth(points: StatAllocation) { setSave(s => s.run ? { ...s, run: spendStatPoints(s.run, points) } : s); }
-  function next() { setSave(s => s.run ? { ...s, run: advance(s.run) } : s); }
+  function shopBuy(id: ItemId) { setSave(s => s.run ? { ...s, run: buyItem(s.run, id) } : s); }
+  function shopSell(id: ItemId) { setSave(s => s.run ? { ...s, run: sellItem(s.run, id) } : s); }
+  function next() { setSave(s => s.run ? archive(s, advance(s.run)) : s); }
   function abandon() { setConfirmAbandon(true); }
   const run = save.run;
   const scene = run ? currentScene(run) : null;
@@ -93,14 +97,16 @@ export default function App() {
       </>}
       {screen === 'growth' && run && <><LevelUpAllocationPanel run={run} onConfirm={allocateGrowth} /><Button title={t('growth.back')} secondary onPress={() => setScreen('game')} /></>}
       {screen === 'game' && tab === 'adventure' && run && scene && <>
+        <Text style={styles.eyebrow}>{t(`events.${scene.category}`)}</Text>
         <View style={styles.dayRow}><Text style={styles.eyebrow}>{t("ui.026", { value1: String(run.day).padStart(2, '0'), place: scene.place })}</Text><Text style={styles.muted}>{t("ui.027", { day: run.day })}</Text></View>
         <View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${run.day * 10}%` }]} /></View>
         <View style={styles.stats}><View style={{ flex: 1 }}><Text style={styles.muted}>{t("ui.028")}</Text><Text style={styles.statValue}>{run.hero.hp}<Text style={styles.muted}> / {run.hero.maxHp}</Text></Text><View style={styles.hpTrack}><View style={[styles.hpFill, { width: `${run.hero.hp / run.hero.maxHp * 100}%` }]} /></View></View><View style={styles.statCell}><Text style={styles.muted}>{t("ui.029")}</Text><Text style={styles.statValue}>{run.hero.gold}</Text></View><View style={styles.statCell}><Text style={styles.muted}>{t("ui.030")}</Text><Text style={[styles.statValue, { color: colors.gold }]}>✧ {run.hero.relics}</Text></View></View>
         <View style={styles.traits}>{(Object.keys(statNames) as Stat[]).map(s => <Text key={s} style={styles.trait}>{statNames[s]} {run.hero[s]}</Text>)}<Text style={styles.muted}>{t("ui.031", { name: roles[run.role].name, level: run.progression.level })}</Text></View>
         <LevelProgress run={run} onAllocate={() => setScreen('growth')} />
+        {run.effects.map(effect => <View key={effect.id} style={styles.result}><Text style={styles.sectionTitle}>{t('events.effect.active', { name: worldEffects[effect.id].name, battles: effect.battles })}</Text><Text style={styles.muted}>{worldEffects[effect.id].description}</Text></View>)}
         {run.ending ? <View style={styles.ending}><Text style={styles.endingMark}>✧</Text><Text style={styles.eyebrow}>{t("ui.032")}</Text><Text style={styles.title}>{endingText(run.ending)}</Text><Text style={styles.body}>{endings[run.ending]}</Text>{run.battleReport && <BattleResult report={run.battleReport} />}<Text style={styles.footnote}>{t("ui.033", { day: run.day, relics: run.hero.relics })}</Text><Button title={t("ui.034")} onPress={() => { setSave(s => ({ ...s, run: null })); setScreen('prologue'); }} /><Button title={t("ui.035")} onPress={() => setTab('journal')} secondary /></View> : <>
           {!run.combat && <View style={styles.story}><Text style={styles.storyMark}>封</Text><Text style={[styles.title, { color: '#332311' }]}>{scene.title}</Text><View style={styles.divider} /><Text style={[styles.body, { color: '#59462f' }]}>{scene.text}</Text></View>}
-          {run.result ? <View style={styles.result}><Text style={styles.eyebrow}>{t("ui.036")}</Text>{run.battleReport ? <BattleResult report={run.battleReport} /> : <Text accessibilityLiveRegion="polite" style={styles.body}>{run.result}</Text>}<Button title={run.day === 9 ? t("ui.037") : t("ui.038")} onPress={next} /></View> : <><View style={styles.sectionHeading}><Text style={styles.sectionTitle}>{t("ui.039")}</Text><Text style={styles.muted}>{t("ui.040", { length: scene.choices.length })}</Text></View>{scene.choices.map((c, i) => { const reason = disabledReason(run, i); return <Pressable key={`${scene.id}-${i}`} accessibilityRole="button" accessibilityState={{ disabled: !!reason }} disabled={!!reason} onPress={() => select(i)} style={({ pressed }) => [styles.choice, reason && { opacity: 0.45 }, pressed && { borderColor: colors.gold, backgroundColor: '#443220' }]}><Text style={styles.choiceNumber}>{String(i + 1).padStart(2, '0')}</Text><View style={{ flex: 1 }}><Text style={styles.choiceTitle}>{c.label}</Text><Text style={styles.muted}>{reason ?? c.hint}</Text></View><Text style={{ color: colors.gold }}>↗</Text></Pressable>; })}</>}
+          {scene.category === 'shop' ? <ShopPanel run={run} onBuy={shopBuy} onSell={shopSell} onLeave={next} /> : run.result ? <View style={styles.result}><Text style={styles.eyebrow}>{t("ui.036")}</Text>{run.battleReport ? <BattleResult report={run.battleReport} /> : <Text accessibilityLiveRegion="polite" style={styles.body}>{run.result}</Text>}<Button title={run.day === 9 ? t("ui.037") : t("ui.038")} onPress={next} /></View> : <><View style={styles.sectionHeading}><Text style={styles.sectionTitle}>{t("ui.039")}</Text><Text style={styles.muted}>{t("ui.040", { length: scene.choices.length })}</Text></View>{scene.choices.map((c, i) => { const reason = disabledReason(run, i); return <Pressable key={`${scene.id}-${i}`} accessibilityRole="button" accessibilityState={{ disabled: !!reason }} disabled={!!reason} onPress={() => select(i)} style={({ pressed }) => [styles.choice, reason && { opacity: 0.45 }, pressed && { borderColor: colors.gold, backgroundColor: '#443220' }]}><Text style={styles.choiceNumber}>{String(i + 1).padStart(2, '0')}</Text><View style={{ flex: 1 }}><Text style={styles.choiceTitle}>{c.label}</Text><Text style={styles.muted}>{reason ?? c.hint}</Text></View><Text style={{ color: colors.gold }}>↗</Text></Pressable>; })}</>}
           {confirmAbandon && <View style={styles.result}><Text style={styles.body}>{t("ui.041")}</Text><Button title={t("ui.042")} secondary onPress={() => setConfirmAbandon(false)} /><Button title={t("ui.043")} onPress={() => { setConfirmAbandon(false); setSave(s => ({ ...s, run: null })); setScreen('prologue'); }} /></View>}
           <Pressable accessibilityRole="button" onPress={abandon} style={{ alignSelf: 'center', padding: 20 }}><Text style={styles.muted}>{t("ui.044")}</Text></Pressable>
         </>}

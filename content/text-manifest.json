@@ -1912,5 +1912,305 @@
     "group": "growth",
     "context": "src/LevelUpAllocationPanel.tsx",
     "notes": "{points}"
+  },
+  {
+    "id": "events.battle",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.story",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.shop",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.gate.trust",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.gate.trust_hint",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.gate.trust_result",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.pool.offer",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.pool.offer_hint",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.pool.offer_result",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.camp.stranger",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.camp.stranger_hint",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.camp.stranger_result",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.bells.touch",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.bells.touch_hint",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.bells.touch_result",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.ambush.title",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.ambush.place",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.ambush.text",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.boss.title",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.boss.place",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.boss.text",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.blessing",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.blessing.description",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.curse",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.curse.description",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.effect.gain",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": "{name}, {battles}"
+  },
+  {
+    "id": "events.effect.active",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": "{name}, {battles}"
+  },
+  {
+    "id": "events.item.gain",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": "{name}"
+  },
+  {
+    "id": "events.item.loss",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": "{name}"
+  },
+  {
+    "id": "events.item.none",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.drop.none",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "items.potion.name",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "items.potion.description",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "shop.heading",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "shop.gold",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": "{gold}"
+  },
+  {
+    "id": "shop.row",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": "{buy}, {sell}, {count}"
+  },
+  {
+    "id": "shop.buy",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": "{name}"
+  },
+  {
+    "id": "shop.sell",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": "{name}"
+  },
+  {
+    "id": "shop.bought",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": "{name}, {price}"
+  },
+  {
+    "id": "shop.sold",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": "{name}, {price}"
+  },
+  {
+    "id": "shop.leave",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "shop.journal",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "shop.owned",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "shop.no_gold",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "shop.no_item",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.drop.rate",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.types.help",
+    "group": "events",
+    "context": "src/game.ts / src/ShopPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "events.item.duplicate",
+    "group": "events",
+    "context": "src/game.ts",
+    "notes": "{name}, {gold}"
+  },
+  {
+    "id": "events.transaction_log",
+    "group": "events",
+    "context": "src/game.ts",
+    "notes": "{day}, {message}"
+  },
+  {
+    "id": "shop.closed",
+    "group": "events",
+    "context": "src/game.ts",
+    "notes": ""
   }
 ]

@@ -1,7 +1,7 @@
 import { t } from './localization';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { spendStatPoints, canSpendStatPoints, MAX_LEVEL, gainExperience, experienceForNextLevel, emptyAllocation, validAllocation, advance, archive, autoBattle, combatStats, maxHealth, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
+import { prepareEvent, eventCategory, buyItem, sellItem, tradeReason, itemCatalog, itemCount, scenes, spendStatPoints, canSpendStatPoints, MAX_LEVEL, gainExperience, experienceForNextLevel, emptyAllocation, validAllocation, advance, archive, autoBattle, combatStats, maxHealth, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
 
 test('same seed and choices produce the same adventure', () => {
   let a = newRun('sorcerer', 123), b = newRun('sorcerer', 123);
@@ -11,14 +11,18 @@ test('same seed and choices produce the same adventure', () => {
     assert.deepEqual(a, b);
   }
 });
-test('payment is required, deducted once and health is capped', () => {
+test('shop purchases require payment and cannot overdraw currency', () => {
   const base = { ...newRun('swordsman', 1), sceneId: 'merchant' };
-  assert.equal(choose({ ...base, hero: { ...base.hero, gold: 0 } }, 0).hero.gold, 0);
-  const paid = choose(base, 0);
+  const poor = { ...base, hero: { ...base.hero, gold: 0 } };
+  assert.equal(buyItem(poor, 'potion'), poor);
+  const paid = buyItem(base, 'potion');
   assert.equal(paid.hero.gold, 4);
-  assert.equal(paid.hero.hp, base.hero.maxHp);
+  assert.equal(paid.progression.potions, 3);
+  const twice = buyItem(paid, 'potion');
+  assert.equal(twice.hero.gold, 0);
+  assert.equal(twice.progression.potions, 4);
+  assert.equal(buyItem(twice, 'potion'), twice);
   assert.equal(choose(paid, 0), paid);
-  assert.equal(choose(base, 99), base);
 });
 test('earlier discoveries unlock the final ending', () => {
   const heart: Run = { ...newRun('sorcerer', 12), day: 10, sceneId: 'heart' };
@@ -28,7 +32,7 @@ test('earlier discoveries unlock the final ending', () => {
   assert.equal(choose(informed, 0).ending, '모든 이름의 새벽');
   assert.equal(choose({ ...heart, flags: ['wolf'] }, 1).ending, '다시 잡은 손');
   assert.equal(choose(heart, 2).ending, '숲의 새로운 등불');
-  const fallen = choose({ ...newRun('swordsman', 1), sceneId: 'bridge', hero: { ...heart.hero, hp: 1 } }, 1);
+  const fallen = choose({ ...newRun('swordsman', 1), sceneId: 'library', hero: { ...heart.hero, hp: 1 } }, 1);
   assert.equal(fallen.ending, '안개에 남은 발자국');
   assert.equal(advance(fallen), fallen);
   const weak = { ...heart, hero: { ...heart.hero, de: 0 } };
@@ -42,29 +46,24 @@ test('saving and restoring retains the pending outcome; archive is idempotent', 
   assert.deepEqual(decodeSave('bad json'), { version: 1, run: null, records: [] });
   assert.equal(decodeSave(JSON.stringify({ ...save, run: { ...finished, hero: null } })).run, null);
 });
-test('600 seeded runs have legal choices and reach a terminal state within ten days', () => {
+test('600 seeded runs resolve all event categories and reach an ending within ten days', () => {
   for (const role of Object.keys(roles) as Role[]) for (let seed = 0; seed < 100; seed++) {
     let run = newRun(role, seed);
     for (let step = 0; !run.ending && step < 10; step++) {
-      const options = currentScene(run).choices.map((_, i) => i).filter(i => !disabledReason(run, i));
-      assert.ok(options.length);
-      run = choose(run, options[(seed + step) % options.length]);
-      for (let turn = 0; run.combat && turn < 30; turn++) {
-        const action = run.hero.hp <= 12 && run.progression.potions ? 'potion' : run.progression.energy >= 2 ? 'skill' : 'attack';
-        run = battleTurn(run, action);
-      }
-      assert.equal(run.combat, null, 'combat should resolve');
-      run = advance(run);
+      if (eventCategory(run) === 'story') {
+        const options = currentScene(run).choices.map((_, i) => i).filter(i => !disabledReason(run, i));
+        assert.ok(options.length); run = choose(run, options[(seed + step) % options.length]);
+      } else if (eventCategory(run) === 'shop') run = buyItem(run, 'potion');
+      else { assert.ok(run.result); assert.ok(run.battleReport); }
+      assert.equal(run.combat, null);
       assert.ok(run.hero.hp >= 0 && run.hero.hp <= run.hero.maxHp);
       assert.ok(run.hero.gold >= 0);
       assert.ok(run.day <= 10);
+      run = advance(run);
     }
     assert.ok(run.ending, `seed ${seed} (${role}) did not finish`);
-    const encounters = run.visited.slice(0, Math.min(8, run.visited.length));
-    assert.equal(new Set(encounters).size, encounters.length);
   }
 });
-
 
 test('combat blocks story choices; guarding reduces heavy damage and restores energy', () => {
   let base = beginCombat(newRun('swordsman', 1));
@@ -83,9 +82,10 @@ test('victory gives one reward and equipment; equipment cannot change during com
   assert.equal(won.combat, null);
   assert.equal(won.hero.gold, 13);
   assert.equal(won.hero.relics, 1);
-  assert.ok(won.progression.inventory.includes('sword'));
+  assert.ok(won.loot.every(id => Object.hasOwn(itemCatalog, id)));
   assert.equal(battleTurn(won, 'attack'), won);
-  const worn = equip(won, 'sword');
+  const owned = { ...won, progression: { ...won.progression, inventory: ['sword'] } };
+  const worn = equip(owned, 'sword');
   assert.equal(worn.progression.weapon, 'sword');
   assert.equal(equip(beginCombat(worn), 'sword').progression.weapon, 'sword');
   assert.equal(equip(worn, 'charm'), worn);
@@ -123,14 +123,14 @@ test('mid-combat save round-trips and older saves migrate without losing story',
   assert.equal(decodeSave(JSON.stringify({ ...save, run: { ...base, combat: { ...base.combat, intent: 'invalid' } } })).run, null);
 });
 
-test('choosing combat automatically resolves it and exposes full results exactly once', () => {
+test('entering a combat event automatically resolves it and exposes full results exactly once', () => {
   const base = newRun('swordsman', 12);
-  const won = choose(base, 2);
+  const won = advance(choose(base, 0));
   assert.equal(won.combat, null);
   assert.equal(won.battleReport?.outcome, 'victory');
   assert.equal(won.battleReport?.gold, 5);
   assert.equal(won.battleReport?.exp, 6);
-  assert.deepEqual(won.battleReport?.items, ['sword']);
+  assert.deepEqual(won.battleReport?.items, won.loot);
   assert.ok(won.battleReport!.log.join('\n').includes(t('game.167', { turn: 1 })));
   assert.equal(autoBattle(won), won);
   assert.equal(choose(won, 2), won);
@@ -455,4 +455,119 @@ test('unused and spent level points survive reload; older saves are credited exa
   assert.equal(again.hero.un, base.hero.un + 6);
   const corrupt = { ...base, progression: { ...base.progression, statPoints: 7 } };
   assert.equal(decodeSave(JSON.stringify({ version: 1, run: corrupt, records: [] })).run, null);
+});
+
+test('event taxonomy is strict: stories have three choices, battles/shops have no story choices', () => {
+  for (const scene of [...scenes, currentScene({ ...newRun('swordsman', 1), sceneId: 'heart' })]) {
+    assert.ok(['battle', 'story', 'shop'].includes(scene.category));
+    assert.equal(scene.choices.length, scene.category === 'story' ? 3 : 0, scene.id);
+  }
+  const intro = choose(newRun('warrior', 2), 0);
+  assert.equal(intro.battleReport, null);
+  const battle = advance(intro);
+  assert.equal(eventCategory(battle), 'battle');
+  assert.ok(battle.result);
+  assert.equal(battle.battleReport!.exp, 6);
+  const shop = advance(battle);
+  assert.equal(eventCategory(shop), 'shop');
+  assert.equal(shop.result, null);
+  assert.equal(shop.battleReport, null);
+});
+
+test('seeded item drops can succeed or fail while every victory grants experience', () => {
+  let found = 0, none = 0;
+  for (let seed = 0; seed < 200; seed++) {
+    const base = beginCombat({ ...newRun('warrior', seed * 7919), sceneId: 'ambush' });
+    base.combat!.hp = 1;
+    const won = autoBattle(base);
+    assert.equal(won.battleReport!.outcome, 'victory');
+    assert.equal(won.battleReport!.exp, 6);
+    assert.equal(won.progression.exp, 6);
+    assert.ok(won.loot.length <= 1);
+    assert.ok(won.loot.every(id => Object.hasOwn(itemCatalog, id)));
+    assert.deepEqual(won.battleReport!.items, won.loot);
+    assert.deepEqual(autoBattle(base), won);
+    if (won.loot.length) found++; else none++;
+  }
+  assert.ok(found > 30 && found < 130);
+  assert.ok(none > 0);
+});
+
+test('story choices grant items, steal equipped items, and apply battle-limited buffs and debuffs', () => {
+  const base = newRun('warrior', 1);
+  const gift = choose(base, 0);
+  assert.ok(gift.progression.inventory.includes('charm'));
+  assert.equal(choose(gift, 0), gift);
+  const owned = { ...base, progression: { ...base.progression, inventory: ['sword'], weapon: 'sword', potions: 0 } };
+  const stolen = choose(owned, 2);
+  assert.equal(stolen.progression.weapon, null);
+  assert.deepEqual(stolen.progression.inventory, []);
+  assert.deepEqual(stolen.effects, [{ id: 'curse', battles: 3 }]);
+  assert.ok(combatStats(stolen).physicalAttack < combatStats({ ...stolen, effects: [] }).physicalAttack);
+  let blessed = choose({ ...base, sceneId: 'camp' }, 0);
+  assert.deepEqual(blessed.effects, [{ id: 'blessing', battles: 3 }]);
+  assert.ok(combatStats(blessed).physicalAttack > combatStats(base).physicalAttack);
+  for (let remaining = 2; remaining >= 0; remaining--) {
+    const combat = beginCombat({ ...blessed, sceneId: 'ambush', result: null, battleReport: null });
+    combat.combat!.hp = 1;
+    blessed = autoBattle(combat);
+    assert.equal(blessed.effects[0]?.battles ?? 0, remaining);
+  }
+  assert.deepEqual(blessed.effects, []);
+});
+
+test('shops buy and sell gear and potions, unequip sold items, and cannot generate arbitrage profit', () => {
+  let shop = { ...newRun('swordsman', 2), sceneId: 'merchant' };
+  const before = shop.hero.gold;
+  shop = buyItem(shop, 'charm');
+  assert.equal(shop.hero.gold, 0);
+  assert.equal(itemCount(shop, 'charm'), 1);
+  assert.ok(tradeReason(shop, 'charm', 'buy'));
+  shop = equip(shop, 'charm');
+  assert.equal(shop.progression.armor, 'charm');
+  shop = sellItem(shop, 'charm');
+  assert.equal(shop.progression.armor, null);
+  assert.equal(shop.hero.gold, 4);
+  assert.ok(shop.hero.gold < before);
+  assert.equal(sellItem(shop, 'charm'), shop);
+  const potions = shop.progression.potions;
+  shop = buyItem(shop, 'potion');
+  assert.equal(shop.progression.potions, potions + 1);
+  shop = sellItem(shop, 'potion');
+  assert.equal(shop.progression.potions, potions);
+  assert.equal(shop.hero.gold, 2);
+  assert.equal(buyItem(shop, 'potion'), shop);
+  const outside = { ...shop, sceneId: 'gate' };
+  assert.equal(sellItem(outside, 'potion'), outside);
+  assert.deepEqual(decodeSave(JSON.stringify({ version: 1, run: shop, records: [] })).run, shop);
+});
+
+test('legacy saves initialize event fields and the boss is a battle before the three-choice ending', () => {
+  const base: any = newRun('warrior', 5);
+  delete base.effects; delete base.loot; delete base.transactionNotice;
+  const restored = decodeSave(JSON.stringify({ version: 1, run: base, records: [] })).run!;
+  assert.deepEqual(restored.effects, []);
+  assert.deepEqual(restored.loot, []);
+  const strong = gainExperience(newRun('warrior', 1), 4350);
+  const beforeBoss = { ...strong, day: 8, sceneId: 'camp', result: 'completed' };
+  const boss = advance(beforeBoss);
+  assert.equal(boss.sceneId, 'boss');
+  assert.equal(boss.battleReport!.outcome, 'victory');
+  assert.equal(boss.battleReport!.exp, 12);
+  assert.equal(boss.ending, null);
+  const finale = advance(boss);
+  assert.equal(finale.sceneId, 'heart');
+  assert.equal(eventCategory(finale), 'story');
+  assert.equal(currentScene(finale).choices.length, 3);
+});
+
+test('resuming an old pending battle resolves it once instead of showing zero story choices', () => {
+  const pending = { ...newRun('warrior', 1), sceneId: 'bridge', day: 2 };
+  const loaded = decodeSave(JSON.stringify({ version: 1, run: pending, records: [] })).run!;
+  const resolved = prepareEvent(loaded);
+  assert.equal(resolved.battleReport!.outcome, 'victory');
+  assert.equal(resolved.battleReport!.exp, 6);
+  assert.equal(prepareEvent(resolved), resolved);
+  const reloaded = decodeSave(JSON.stringify({ version: 1, run: resolved, records: [] })).run!;
+  assert.equal(prepareEvent(reloaded), reloaded);
 });
