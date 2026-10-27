@@ -51,3 +51,5 @@ npm test             # 게임 및 번역 데이터 검사
 다운로드용 HTML은 사용자가 요청할 때만 다시 만듭니다.
 
 아이템 이름·효과 수치·가격·아이템 번역은 별도의 [items.xlsx](items.xlsx)에서 관리합니다. [아이템 관리 안내](ITEMS.md)를 참고하세요.
+
+몬스터 이름과 번역·능력치·등장 조건·드랍은 [monsters.xlsx](monsters.xlsx)에서 관리합니다. [몬스터 관리 안내](MONSTERS.md)를 참고하세요.

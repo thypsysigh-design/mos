@@ -12,9 +12,9 @@
     "test": "tsx --test src/game.test.ts src/localization/localization.test.ts && npm run texts:test",
     "export": "expo export --platform all",
     "playtest": "expo export --platform web --output-dir web-dist --max-workers 2 && node scripts/build-playtest.mjs",
-    "texts:import": "node scripts/import-items.mjs && node scripts/import-texts.mjs",
-    "texts:check": "node scripts/import-items.mjs --check && node scripts/import-texts.mjs --check",
-    "texts:test": "node --test scripts/text-catalog.test.mjs scripts/item-catalog.test.mjs",
+    "texts:import": "node scripts/import-items.mjs && node scripts/import-texts.mjs && npm run monsters:import",
+    "texts:check": "node scripts/import-items.mjs --check && node scripts/import-texts.mjs --check && npm run monsters:check",
+    "texts:test": "node --test scripts/text-catalog.test.mjs scripts/item-catalog.test.mjs scripts/monster-catalog.test.mjs",
     "prestart": "npm run texts:import",
     "preweb": "npm run texts:import",
     "preandroid": "npm run texts:import",
@@ -23,7 +23,9 @@
     "preplaytest": "npm run texts:import",
     "pretest": "npm run texts:check",
     "items:import": "node scripts/import-items.mjs",
-    "items:check": "node scripts/import-items.mjs --check"
+    "items:check": "node scripts/import-items.mjs --check",
+    "monsters:import": "node scripts/import-monsters.mjs",
+    "monsters:check": "node scripts/import-monsters.mjs --check"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.16",

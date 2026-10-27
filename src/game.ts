@@ -1,3 +1,4 @@
+import { eligibleMonsters, monsterName, rollMonsterDrop, type MonsterDrop } from './monsters';
 import { t } from './localization';
 import { equipment, itemCatalog, type ItemId } from './items';
 export { equipment, itemCatalog } from './items';
@@ -24,7 +25,7 @@ export type EventCategory = 'battle' | 'story' | 'shop';
 export type WorldEffectId = 'blessing' | 'curse';
 export type WorldEffect = { id: WorldEffectId; battles: number };
 export type Scene = { category: EventCategory; id: string; title: string; place: string; text: string; choices: Choice[] };
-export type Combat = { enemy: string; hp: number; maxHp: number; attack: number; turn: number; intent: 'strike' | 'heavy' | 'recover'; log: string[]; boss: boolean; damageType: 'physical' | 'magic'; physicalDefense: number; magicDefense: number; playerBuff: number; enemyDebuff: number };
+export type Combat = { drops?: MonsterDrop[]; enemy: string; hp: number; maxHp: number; attack: number; turn: number; intent: 'strike' | 'heavy' | 'recover'; log: string[]; boss: boolean; damageType: 'physical' | 'magic'; physicalDefense: number; magicDefense: number; playerBuff: number; enemyDebuff: number };
 export type Progression = { level: number; exp: number; statPoints: number; potions: number; spiritPotions: number; energy: number; maxEnergy: number; inventory: string[]; weapon: string | null; armor: string | null };
 export type BattleReport = { enemy: string; outcome: 'victory' | 'defeat' | 'retreat'; rounds: number; startHp: number; endHp: number; gold: number; exp: number; items: string[]; levels: number; log: string[]; startMental?: number; endMental?: number };
 export type Run = { role: Role; day: number; seed: number; hero: Hero; sceneId: string; visited: string[]; flags: string[]; journal: string[]; result: string | null; ending: string | null; combat: Combat | null; progression: Progression; battleReport: BattleReport | null; loot: ItemId[]; effects: WorldEffect[]; transactionNotice: string | null; itemNotice: string | null };
@@ -313,6 +314,7 @@ export function decodeSave(raw: string | null): Save {
       }
       if (!Object.hasOwn(p, 'statPoints')) p.statPoints = (p.level - 1) * LEVEL_STAT_POINTS;
       if (!Number.isSafeInteger(p.statPoints) || p.statPoints < 0 || p.statPoints > (p.level - 1) * LEVEL_STAT_POINTS) return empty;
+      if (r.combat?.drops !== undefined && (!Array.isArray(r.combat.drops) || !r.combat.drops.every((d: MonsterDrop) => d && Object.hasOwn(itemCatalog,d.item) && Number.isFinite(d.probability) && d.probability >= 0 && d.probability <= 1) || r.combat.drops.reduce((sum: number,d: MonsterDrop) => sum+d.probability,0) > 1.000000001)) return empty;
       if (r.combat && (!['hp', 'maxHp', 'attack', 'turn'].every(k => Number.isInteger(r.combat[k]) && r.combat[k] > 0) || r.combat.hp > r.combat.maxHp || !['physical', 'magic'].includes(r.combat.damageType) || !['playerBuff', 'enemyDebuff'].every(k => Number.isInteger(r.combat[k]) && r.combat[k] >= 0 && r.combat[k] <= 3) || !['physicalDefense', 'magicDefense'].every(k => Number.isInteger(r.combat[k]) && r.combat[k] >= 0) || !['strike', 'heavy', 'recover'].includes(r.combat.intent) || typeof r.combat.enemy !== 'string' || typeof r.combat.boss !== 'boolean' || !Array.isArray(r.combat.log) || !r.combat.log.every((line: unknown) => typeof line === 'string') || r.result || r.ending)) return empty;
     }
     return s;
@@ -321,9 +323,13 @@ export function decodeSave(raw: string | null): Save {
 
 export function beginCombat(run: Run): Run {
   const boss = run.sceneId === 'heart' || run.sceneId === 'boss';
-  const enemy = boss ? t("game.157") : run.sceneId === 'wolf' ? t("game.158") : run.sceneId === 'bridge' ? t("game.159") : t("game.160");
-  const hp = boss ? 34 : run.sceneId === 'wolf' ? 20 : 16;
-  return { ...run, loot: [], combat: { enemy, hp, maxHp: hp, attack: boss ? 7 : 5, turn: 1, intent: 'strike', boss, damageType: boss || run.sceneId === 'bridge' ? 'magic' : 'physical', physicalDefense: boss ? 3 : 1, magicDefense: boss ? 3 : 1, playerBuff: 0, enemyDebuff: 0, log: [t("game.161", { enemy: enemy })] }, progression: { ...run.progression } };
+  const pool = eligibleMonsters(run.progression.level, boss);
+  const [roll, seed] = random(run.seed);
+  const selected = pool[Math.floor(roll * pool.length)];
+  if (!selected) throw new Error('No eligible monster: check monsters.xlsx');
+  const [, monster] = selected;
+  const enemy = monsterName(monster), hp = monster.hp;
+  return { ...run, seed, loot: [], combat: { drops: monster.drops.map(drop => ({...drop})), enemy, hp, maxHp: hp, attack: monster.attack, turn: 1, intent: 'strike', boss, damageType: monster.damageType, physicalDefense: monster.physicalDefense, magicDefense: monster.magicDefense, playerBuff: 0, enemyDebuff: 0, log: [t("game.161", { enemy })] }, progression: { ...run.progression } };
 }
 export type BattleAction = 'attack' | 'guard' | 'skill' | 'potion' | 'spirit_potion' | 'flee';
 export function battleDisabled(run: Run, action: BattleAction): string | null {
@@ -403,12 +409,14 @@ export function battleTurn(run: Run, action: BattleAction): Run {
     const reward = combat.boss ? 12 : 5;
     hero.gold += reward; hero.relics++;
     const dropped: ItemId[] = [];
-    if (draw() < (combat.boss ? 0.6 : 0.4)) {
-      const pool = (Object.keys(itemCatalog) as ItemId[]).filter(id => itemCatalog[id].kind === 'consumable' || !progression.inventory.includes(id));
-      const id = pool[Math.floor(draw() * pool.length)]; dropped.push(id);
+    // Old saved battles retain the former reward table; new battles snapshot Excel drops.
+    const dropTable = combat.drops ?? (Object.keys(itemCatalog) as ItemId[]).map(item => ({item, probability: (combat.boss ? 0.6 : 0.4) / Object.keys(itemCatalog).length}));
+    const id = rollMonsterDrop(dropTable, draw());
+    if (id && (itemCatalog[id].kind === 'consumable' || !progression.inventory.includes(id))) {
+      dropped.push(id);
       if (id === 'potion') progression.potions++; else if (id === 'spirit_potion') progression.spiritPotions++; else progression.inventory.push(id);
     }
-    log.push(t("game.186", { reward, value2: combat.boss ? 12 : 6, value3: dropped.length ? t("game.185", { name: itemCatalog[dropped[0]].name }) : '' }));
+    log.push(t("game.186", { reward, value2: combat.boss ? 12 : 6, value3: dropped.length ? t("game.185", { name: dropped.map(id => itemCatalog[id].name).join(', ') }) : '' }));
     if (!dropped.length) log.push(t('events.drop.none'));
     const grown = gainExperience({ ...run, hero, progression }, combat.boss ? 12 : 6);
     for (let level = progression.level + 1; level <= grown.progression.level; level++) log.push(t("game.187", { level }), t('growth.reward', { points: LEVEL_STAT_POINTS }));

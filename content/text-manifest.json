@@ -1338,30 +1338,6 @@
     "notes": "{day}, {title}, {label}, {result}"
   },
   {
-    "id": "game.157",
-    "group": "game",
-    "context": "src/game.ts:187",
-    "notes": ""
-  },
-  {
-    "id": "game.158",
-    "group": "game",
-    "context": "src/game.ts:187",
-    "notes": ""
-  },
-  {
-    "id": "game.159",
-    "group": "game",
-    "context": "src/game.ts:187",
-    "notes": ""
-  },
-  {
-    "id": "game.160",
-    "group": "game",
-    "context": "src/game.ts:187",
-    "notes": ""
-  },
-  {
     "id": "game.161",
     "group": "game",
     "context": "src/game.ts:189",

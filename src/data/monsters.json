@@ -1,0 +1,154 @@
+{
+  "mist": {
+    "names": {
+      "ko": "성문 밖 도깨비",
+      "en": "",
+      "ja": ""
+    },
+    "kind": "normal",
+    "attack": 5,
+    "hp": 16,
+    "level": 1,
+    "minLevel": 1,
+    "maxLevel": 30,
+    "damageType": "physical",
+    "physicalDefense": 1,
+    "magicDefense": 1,
+    "drops": [
+      {
+        "item": "sword",
+        "probability": 0.08
+      },
+      {
+        "item": "charm",
+        "probability": 0.08
+      },
+      {
+        "item": "blade",
+        "probability": 0.08
+      },
+      {
+        "item": "potion",
+        "probability": 0.08
+      },
+      {
+        "item": "spirit_potion",
+        "probability": 0.08
+      }
+    ]
+  },
+  "wolf": {
+    "names": {
+      "ko": "창에 묶인 묵은 삵",
+      "en": "",
+      "ja": ""
+    },
+    "kind": "normal",
+    "attack": 5,
+    "hp": 20,
+    "level": 2,
+    "minLevel": 1,
+    "maxLevel": 30,
+    "damageType": "physical",
+    "physicalDefense": 1,
+    "magicDefense": 1,
+    "drops": [
+      {
+        "item": "sword",
+        "probability": 0.08
+      },
+      {
+        "item": "charm",
+        "probability": 0.08
+      },
+      {
+        "item": "blade",
+        "probability": 0.08
+      },
+      {
+        "item": "potion",
+        "probability": 0.08
+      },
+      {
+        "item": "spirit_potion",
+        "probability": 0.08
+      }
+    ]
+  },
+  "bridge": {
+    "names": {
+      "ko": "목소리를 훔친 원귀",
+      "en": "",
+      "ja": ""
+    },
+    "kind": "normal",
+    "attack": 5,
+    "hp": 16,
+    "level": 2,
+    "minLevel": 1,
+    "maxLevel": 30,
+    "damageType": "magic",
+    "physicalDefense": 1,
+    "magicDefense": 1,
+    "drops": [
+      {
+        "item": "sword",
+        "probability": 0.08
+      },
+      {
+        "item": "charm",
+        "probability": 0.08
+      },
+      {
+        "item": "blade",
+        "probability": 0.08
+      },
+      {
+        "item": "potion",
+        "probability": 0.08
+      },
+      {
+        "item": "spirit_potion",
+        "probability": 0.08
+      }
+    ]
+  },
+  "mountain_lord": {
+    "names": {
+      "ko": "이름을 삼키는 대감신",
+      "en": "",
+      "ja": ""
+    },
+    "kind": "boss",
+    "attack": 7,
+    "hp": 34,
+    "level": 5,
+    "minLevel": 1,
+    "maxLevel": 30,
+    "damageType": "magic",
+    "physicalDefense": 3,
+    "magicDefense": 3,
+    "drops": [
+      {
+        "item": "sword",
+        "probability": 0.12
+      },
+      {
+        "item": "charm",
+        "probability": 0.12
+      },
+      {
+        "item": "blade",
+        "probability": 0.12
+      },
+      {
+        "item": "potion",
+        "probability": 0.12
+      },
+      {
+        "item": "spirit_potion",
+        "probability": 0.12
+      }
+    ]
+  }
+}

@@ -1,3 +1,4 @@
+import { monsters, rollMonsterDrop } from './monsters';
 import { createItemCatalog, type ItemData } from './items';
 import rawItems from './data/items.json';
 import { t } from './localization';
@@ -69,7 +70,7 @@ test('600 seeded runs resolve all event categories and reach an ending within te
 
 test('combat blocks story choices; guarding reduces heavy damage and restores energy', () => {
   let base = beginCombat(newRun('swordsman', 1));
-  base = { ...base, combat: { ...base.combat!, intent: 'heavy' }, progression: { ...base.progression, energy: 0 } };
+  base = { ...base, seed: 1, combat: { ...base.combat!, intent: 'heavy' }, progression: { ...base.progression, energy: 0 } };
   const attack = battleTurn(base, 'attack'), guard = battleTurn(base, 'guard');
   assert.ok(guard.hero.hp > attack.hero.hp);
   assert.equal(guard.progression.energy, 3);
@@ -249,7 +250,7 @@ test('archer debuffs the enemy; support buffs and debuffs last three turns inclu
     run = battleTurn(run, 'skill');
     assert.equal(run.combat!.enemyDebuff, 2);
     assert.equal(run.combat!.playerBuff, role === 'archer' ? 0 : 2);
-    const protectedTurn = { ...run, combat: { ...run.combat!, attack: 18, intent: 'strike' as const } };
+    const protectedTurn = { ...run, seed: 1000, combat: { ...run.combat!, attack: 18, intent: 'strike' as const } };
     const plainTurn = { ...protectedTurn, combat: { ...protectedTurn.combat, playerBuff: 0, enemyDebuff: 0 } };
     assert.ok(battleTurn(protectedTurn, 'guard').hero.hp > battleTurn(plainTurn, 'guard').hero.hp);
     run = battleTurn(run, 'guard');
@@ -676,4 +677,21 @@ test('item names and effect descriptions derive from Excel data, and recovery us
     const used = useItem({ ...base, hero: { ...base.hero, hp: 1 } }, 'potion');
     assert.equal(used.hero.hp, 28);
   } finally { itemCatalog.potion.amount = previous; }
+});
+
+test('Excel monster level gates, combat stats and configured drops drive actual encounters', () => {
+  const original = structuredClone(monsters);
+  try {
+    for (const key of Object.keys(monsters)) delete monsters[key];
+    monsters.low = { names:{ko:'하급 요괴'},kind:'normal',attack:2,hp:1,level:1,minLevel:1,maxLevel:9,damageType:'physical',physicalDefense:0,magicDefense:0,drops:[{item:'spirit_potion',probability:1}] };
+    monsters.high = {...monsters.low,names:{ko:'상급 요괴'},attack:17,hp:90,level:20,minLevel:10,maxLevel:30,drops:[]};
+    let run = beginCombat({...newRun('warrior',3),sceneId:'ambush'});
+    assert.match(run.combat!.enemy,/하급 요괴.*Lv.1/);assert.equal(run.combat!.attack,2);
+    assert.deepEqual(autoBattle(run).loot,['spirit_potion']);
+    run.progression.level=10;run.combat=null;
+    run=beginCombat(run);assert.match(run.combat!.enemy,/상급 요괴.*Lv.20/);assert.equal(run.combat!.maxHp,90);assert.equal(run.combat!.attack,17);
+    run.combat!.hp=1;assert.deepEqual(autoBattle(run).loot,[]);
+    assert.equal(rollMonsterDrop([{item:'potion',probability:0.25}],0.249),'potion');
+    assert.equal(rollMonsterDrop([{item:'potion',probability:0.25}],0.25),null);
+  } finally {for(const key of Object.keys(monsters))delete monsters[key];Object.assign(monsters,original);}
 });
