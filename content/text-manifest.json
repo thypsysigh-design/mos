@@ -1810,5 +1810,23 @@
     "group": "creation",
     "context": "src/StatAllocationPanel.tsx:24",
     "notes": ""
+  },
+  {
+    "id": "button.next_stats",
+    "group": "creation",
+    "context": "App.tsx",
+    "notes": ""
+  },
+  {
+    "id": "button.back_to_class",
+    "group": "creation",
+    "context": "App.tsx",
+    "notes": ""
+  },
+  {
+    "id": "creation.allocation_step",
+    "group": "creation",
+    "context": "App.tsx",
+    "notes": ""
   }
 ]

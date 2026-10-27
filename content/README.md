@@ -17,6 +17,9 @@
 | button.enter | 첫 화면 시작 버튼 |
 | prologue.title | 프롤로그 제목 |
 | prologue.body | 프롤로그 본문 |
+| button.next_stats | 직업 선택에서 스탯 분배로 이동 |
+| button.back_to_class | 스탯 분배에서 직업 선택으로 돌아가기 |
+| creation.allocation_step | 스탯 분배 화면 안내 |
 | button.start_game | 게임 시작 버튼 |
 
 **ID를 변경하거나 기존 행을 삭제하지 마세요.** 분류·위치·메모는 관리용 정보입니다.

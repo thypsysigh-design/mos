@@ -28,7 +28,7 @@ export default function App() {
   const [readFailed, setReadFailed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<'adventure' | 'journal' | 'records' | 'equipment'>('adventure');
-  const [screen, setScreen] = useState<'index' | 'prologue' | 'game'>('index');
+  const [screen, setScreen] = useState<'index' | 'prologue' | 'allocation' | 'game'>('index');
   const [role, setRole] = useState<Role>('swordsman');
   const [allocation, setAllocation] = useState(emptyAllocation);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
@@ -76,9 +76,17 @@ export default function App() {
         <Text style={styles.body}>{t("prologue.body")}</Text>
         {!run && <><View style={styles.sectionHeading}><Text style={styles.sectionTitle}>{t("creation.class_prompt")}</Text><Text style={styles.muted}>{t("creation.class_count")}</Text></View>
         {(Object.keys(roles) as Role[]).map(key => <Pressable key={key} accessibilityRole="radio" accessibilityState={{ selected: role === key }} accessibilityLabel={`${roles[key].name}, ${roles[key].subtitle}`} onPress={() => setRole(key)} style={[styles.role, role === key && styles.selected]}><Text style={styles.roleMark}>{roles[key].mark}</Text><View style={{ flex: 1 }}><Text style={styles.roleName}>{roles[key].name}</Text><Text style={styles.muted}>{roles[key].subtitle}</Text><Text style={styles.muted}>{(Object.keys(statNames) as Stat[]).map(stat => `${statNames[stat]} ${roles[key].stats[stat]}`).join(' · ')}</Text><Text style={styles.muted}>{roles[key].description}</Text></View><Text style={{ color: colors.gold }}>{role === key ? '●' : '○'}</Text></Pressable>)}
-        <StatAllocationPanel role={role} allocation={allocation} onChange={setAllocation} /><Button title={t("button.start_game")} onPress={start} disabled={!validAllocation(allocation)} /></>}
+        <Button title={t("button.next_stats")} onPress={() => setScreen('allocation')} /></>}
         {run && <><Text style={styles.body}>{t("ui.022", { day: run.day })}</Text><Button title={t("button.resume")} onPress={() => { setScreen('game'); setTab('adventure'); }} /></>}
         <Button title={t("button.back_to_title")} secondary onPress={() => setScreen('index')} /><Text style={styles.footnote}>{t("ui.025")}</Text>
+      </>}
+      {screen === 'allocation' && !run && <>
+        <Text style={styles.eyebrow}>{t("creation.allocation_step")}</Text>
+        <Text style={styles.title}>{roles[role].name}</Text>
+        <Text style={styles.body}>{roles[role].description}</Text>
+        <StatAllocationPanel role={role} allocation={allocation} onChange={setAllocation} />
+        <Button title={t("button.start_game")} onPress={start} disabled={!validAllocation(allocation)} />
+        <Button title={t("button.back_to_class")} secondary onPress={() => setScreen('prologue')} />
       </>}
       {screen === 'game' && tab === 'adventure' && run && scene && <>
         <View style={styles.dayRow}><Text style={styles.eyebrow}>{t("ui.026", { value1: String(run.day).padStart(2, '0'), place: scene.place })}</Text><Text style={styles.muted}>{t("ui.027", { day: run.day })}</Text></View>
