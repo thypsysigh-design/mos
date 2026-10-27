@@ -1,7 +1,9 @@
+import { createItemCatalog, type ItemData } from './items';
+import rawItems from './data/items.json';
 import { t } from './localization';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { prepareEvent, eventCategory, buyItem, sellItem, tradeReason, itemCatalog, itemCount, scenes, spendStatPoints, canSpendStatPoints, MAX_LEVEL, gainExperience, experienceForNextLevel, emptyAllocation, validAllocation, advance, archive, autoBattle, combatStats, maxHealth, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
+import { useItem, itemUseReason, SKILL_MENTAL_COST, getInventory, prepareEvent, eventCategory, buyItem, sellItem, tradeReason, itemCatalog, itemCount, scenes, spendStatPoints, canSpendStatPoints, MAX_LEVEL, gainExperience, experienceForNextLevel, emptyAllocation, validAllocation, advance, archive, autoBattle, combatStats, maxHealth, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
 
 test('same seed and choices produce the same adventure', () => {
   let a = newRun('sorcerer', 123), b = newRun('sorcerer', 123);
@@ -70,7 +72,7 @@ test('combat blocks story choices; guarding reduces heavy damage and restores en
   base = { ...base, combat: { ...base.combat!, intent: 'heavy' }, progression: { ...base.progression, energy: 0 } };
   const attack = battleTurn(base, 'attack'), guard = battleTurn(base, 'guard');
   assert.ok(guard.hero.hp > attack.hero.hp);
-  assert.equal(guard.progression.energy, 1);
+  assert.equal(guard.progression.energy, 3);
   assert.equal(choose(base, 0), base);
   assert.equal(advance(base), base);
   assert.ok(battleDisabled(base, 'skill'));
@@ -103,7 +105,7 @@ test('potion consumes a turn, defeat resolves, and level rewards are applied', (
   const healed = battleTurn(hurt, 'potion');
   assert.equal(healed.progression.potions, 1);
   assert.equal(healed.combat!.turn, 2);
-  assert.ok(healed.hero.hp > 10 && healed.hero.hp < 22);
+  assert.ok(healed.hero.hp > 10 && healed.hero.hp <= healed.hero.maxHp);
   const dead = battleTurn({ ...base, hero: { ...base.hero, hp: 1 } }, 'guard');
   assert.equal(dead.ending, '안개에 남은 발자국');
   const ready = { ...base, progression: { ...base.progression, exp: 8 }, combat: { ...base.combat!, hp: 1 } };
@@ -498,7 +500,7 @@ test('story choices grant items, steal equipped items, and apply battle-limited 
   const gift = choose(base, 0);
   assert.ok(gift.progression.inventory.includes('charm'));
   assert.equal(choose(gift, 0), gift);
-  const owned = { ...base, progression: { ...base.progression, inventory: ['sword'], weapon: 'sword', potions: 0 } };
+  const owned = { ...base, progression: { ...base.progression, inventory: ['sword'], weapon: 'sword', potions: 0, spiritPotions: 0 } };
   const stolen = choose(owned, 2);
   assert.equal(stolen.progression.weapon, null);
   assert.deepEqual(stolen.progression.inventory, []);
@@ -570,4 +572,108 @@ test('resuming an old pending battle resolves it once instead of showing zero st
   assert.equal(prepareEvent(resolved), resolved);
   const reloaded = decodeSave(JSON.stringify({ version: 1, run: resolved, records: [] })).run!;
   assert.equal(prepareEvent(reloaded), reloaded);
+});
+
+test('inventory includes starting consumables, story gifts, quantities and equipped state', () => {
+  const base = newRun('warrior', 1);
+  assert.deepEqual(getInventory(base), [{ id: 'potion', count: 2, equipped: false, category: 'consumable' }, { id: 'spirit_potion', count: 1, equipped: false, category: 'consumable' }]);
+  const gift = choose(base, 0);
+  const worn = equip(gift, 'charm');
+  assert.deepEqual(getInventory(worn).find(entry => entry.id === 'charm'), { id: 'charm', count: 1, equipped: true, category: 'equipment' });
+  const off = equip(worn, 'charm');
+  assert.equal(getInventory(off).find(entry => entry.id === 'charm')!.equipped, false);
+  assert.equal(getInventory(base).length, 2, 'derived entries must not mutate earlier inventory');
+});
+
+test('inventory follows purchases, sales, loss and saved consumable counts without phantom items', () => {
+  let shop = { ...newRun('swordsman', 1), sceneId: 'merchant' };
+  shop = buyItem(shop, 'potion');
+  assert.equal(getInventory(shop).find(entry => entry.id === 'potion')!.count, 3);
+  shop = sellItem(shop, 'potion');
+  assert.equal(getInventory(shop).find(entry => entry.id === 'potion')!.count, 2);
+  const restored = decodeSave(JSON.stringify({ version: 1, run: shop, records: [] })).run!;
+  assert.deepEqual(getInventory(restored), getInventory(shop));
+  const carrying = newRun('swordsman', 2);
+  const stolen = choose({ ...carrying, progression: { ...carrying.progression, inventory: ['sword'], weapon: 'sword', potions: 0, spiritPotions: 0 } }, 2);
+  assert.deepEqual(getInventory(stolen), []);
+  assert.equal(stolen.progression.weapon, null);
+});
+
+test('monster damage reduces health, skills consume mental power, and low MP blocks skills', () => {
+  const base = beginCombat(newRun('swordsman', 0));
+  base.combat!.hp = 100; base.combat!.maxHp = 100;
+  const normal = battleTurn(base, 'attack');
+  assert.ok(normal.hero.hp < base.hero.hp);
+  assert.equal(normal.progression.energy, base.progression.energy);
+  const skill = battleTurn(base, 'skill');
+  assert.equal(skill.progression.energy, base.progression.energy - SKILL_MENTAL_COST);
+  const exhausted = { ...base, progression: { ...base.progression, energy: 9 } };
+  assert.ok(battleDisabled(exhausted, 'skill'));
+  assert.equal(battleTurn(exhausted, 'skill'), exhausted);
+  assert.equal(beginCombat(exhausted).progression.energy, 9, 'encounter entry must not refill MP');
+});
+
+test('inventory recovery items consume one unit, clamp HP/MP and cannot be wasted at full resources', () => {
+  const base = newRun('swordsman', 1);
+  assert.ok(itemUseReason(base, 'potion'));
+  assert.ok(itemUseReason(base, 'spirit_potion'));
+  assert.equal(useItem(base, 'potion'), base);
+  assert.equal(useItem(base, 'spirit_potion'), base);
+  const hurt = { ...base, hero: { ...base.hero, hp: base.hero.maxHp - 3 }, progression: { ...base.progression, energy: 0 } };
+  const hp = useItem(hurt, 'potion');
+  assert.equal(hp.hero.hp, base.hero.maxHp);
+  assert.equal(hp.progression.potions, 1);
+  const mp = useItem(hp, 'spirit_potion');
+  assert.equal(mp.progression.energy, Math.min(itemCatalog.spirit_potion.amount, 30));
+  assert.equal(mp.progression.spiritPotions, 0);
+  assert.equal(useItem(mp, 'spirit_potion'), mp);
+  const nearlyFull = { ...base, progression: { ...base.progression, energy: 29 } };
+  assert.equal(useItem(nearlyFull, 'spirit_potion').progression.energy, 30);
+  const dead = { ...base, hero: { ...base.hero, hp: 0 } };
+  assert.equal(useItem(dead, 'potion'), dead);
+  assert.equal(useItem(beginCombat(hurt), 'potion').progression.potions, hurt.progression.potions);
+});
+
+test('buffs restore both resources and stay within resource maximums', () => {
+  const base = beginCombat(newRun('warrior', 1));
+  const blessed: Run = { ...base, hero: { ...base.hero, hp: 10 }, progression: { ...base.progression, energy: 0 }, effects: [{ id: 'blessing', battles: 3 }], combat: { ...base.combat!, hp: 100, maxHp: 100, intent: 'recover' } };
+  const next = battleTurn(blessed, 'attack');
+  assert.equal(next.hero.hp, 12);
+  assert.equal(next.progression.energy, 3);
+  const capped = battleTurn({ ...blessed, hero: { ...blessed.hero, hp: blessed.hero.maxHp - 1 }, progression: { ...blessed.progression, energy: 29 } }, 'attack');
+  assert.equal(capped.hero.hp, capped.hero.maxHp);
+  assert.equal(capped.progression.energy, 30);
+  const skillBuff = battleTurn({ ...blessed, effects: [], combat: { ...blessed.combat!, playerBuff: 2 } }, 'attack');
+  assert.equal(skillBuff.progression.energy, 2);
+});
+
+test('mental potions can be bought and sold, and legacy energy is migrated once', () => {
+  const base = { ...newRun('swordsman', 1), sceneId: 'merchant' };
+  const bought = buyItem(base, 'spirit_potion');
+  assert.equal(bought.progression.spiritPotions, 2);
+  assert.equal(bought.hero.gold, 4);
+  assert.equal(sellItem(bought, 'spirit_potion').progression.spiritPotions, 1);
+  const legacy: any = { ...base, progression: { ...base.progression, energy: 1 } };
+  delete legacy.progression.maxEnergy; delete legacy.progression.spiritPotions;
+  const restored = decodeSave(JSON.stringify({ version: 1, run: legacy, records: [] })).run!;
+  assert.equal(restored.progression.energy, 10);
+  assert.equal(restored.progression.maxEnergy, 30);
+  assert.equal(restored.progression.spiritPotions, 0);
+  assert.deepEqual(decodeSave(JSON.stringify({ version: 1, run: restored, records: [] })).run, restored);
+});
+
+test('item names and effect descriptions derive from Excel data, and recovery uses configured amounts', () => {
+  const changed = JSON.parse(JSON.stringify(rawItems)) as Record<keyof typeof rawItems, ItemData>;
+  changed.potion.names.ko = '새 이름 탕약'; changed.potion.amount = 27;
+  const catalog = createItemCatalog(changed, 'ko');
+  assert.equal(catalog.potion.name, '새 이름 탕약');
+  assert.equal(catalog.potion.amount, 27);
+  assert.ok(catalog.potion.description.includes('27'));
+  const base = newRun('warrior', 1);
+  const previous = itemCatalog.potion.amount;
+  try {
+    itemCatalog.potion.amount = 27;
+    const used = useItem({ ...base, hero: { ...base.hero, hp: 1 } }, 'potion');
+    assert.equal(used.hero.hp, 28);
+  } finally { itemCatalog.potion.amount = previous; }
 });

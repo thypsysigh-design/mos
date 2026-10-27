@@ -4,13 +4,15 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { buyItem, sellItem, worldEffects, spendStatPoints, emptyAllocation, validAllocation, advance, archive, prepareEvent, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, statNames, type ItemId, type StatAllocation, type Role, type Save, type Stat } from './src/game';
+import { useItem, buyItem, sellItem, worldEffects, spendStatPoints, emptyAllocation, validAllocation, advance, archive, prepareEvent, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, statNames, type ItemId, type StatAllocation, type Role, type Save, type Stat } from './src/game';
 
+import { VitalsPanel } from './src/VitalsPanel';
+import { InventoryPanel } from './src/InventoryPanel';
 import { ShopPanel } from './src/ShopPanel';
 import { LevelUpAllocationPanel } from './src/LevelUpAllocationPanel';
 import { LevelProgress } from './src/LevelProgress';
 import { StatAllocationPanel } from './src/StatAllocationPanel';
-import { BattleResult, EquipmentPanel } from './src/CombatPanel';
+import { BattleResult } from './src/CombatPanel';
 
 const STORAGE = 'mos-adventure.v1';
 const empty: Save = { version: 1, run: null, records: [] };
@@ -59,6 +61,7 @@ export default function App() {
   function select(index: number) { setSave(s => s.run ? archive(s, choose(s.run, index)) : s); }
   function wear(id: string) { setSave(s => s.run ? { ...s, run: equip(s.run, id) } : s); }
   function allocateGrowth(points: StatAllocation) { setSave(s => s.run ? { ...s, run: spendStatPoints(s.run, points) } : s); }
+  function consume(id: ItemId) { setSave(s => s.run ? { ...s, run: useItem(s.run, id) } : s); }
   function shopBuy(id: ItemId) { setSave(s => s.run ? { ...s, run: buyItem(s.run, id) } : s); }
   function shopSell(id: ItemId) { setSave(s => s.run ? { ...s, run: sellItem(s.run, id) } : s); }
   function next() { setSave(s => s.run ? archive(s, advance(s.run)) : s); }
@@ -100,7 +103,8 @@ export default function App() {
         <Text style={styles.eyebrow}>{t(`events.${scene.category}`)}</Text>
         <View style={styles.dayRow}><Text style={styles.eyebrow}>{t("ui.026", { value1: String(run.day).padStart(2, '0'), place: scene.place })}</Text><Text style={styles.muted}>{t("ui.027", { day: run.day })}</Text></View>
         <View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${run.day * 10}%` }]} /></View>
-        <View style={styles.stats}><View style={{ flex: 1 }}><Text style={styles.muted}>{t("ui.028")}</Text><Text style={styles.statValue}>{run.hero.hp}<Text style={styles.muted}> / {run.hero.maxHp}</Text></Text><View style={styles.hpTrack}><View style={[styles.hpFill, { width: `${run.hero.hp / run.hero.maxHp * 100}%` }]} /></View></View><View style={styles.statCell}><Text style={styles.muted}>{t("ui.029")}</Text><Text style={styles.statValue}>{run.hero.gold}</Text></View><View style={styles.statCell}><Text style={styles.muted}>{t("ui.030")}</Text><Text style={[styles.statValue, { color: colors.gold }]}>✧ {run.hero.relics}</Text></View></View>
+        <VitalsPanel run={run} />
+        <View style={styles.stats}><View style={styles.statCell}><Text style={styles.muted}>{t("ui.029")}</Text><Text style={styles.statValue}>{run.hero.gold}</Text></View><View style={styles.statCell}><Text style={styles.muted}>{t("ui.030")}</Text><Text style={[styles.statValue, { color: colors.gold }]}>✧ {run.hero.relics}</Text></View></View>
         <View style={styles.traits}>{(Object.keys(statNames) as Stat[]).map(s => <Text key={s} style={styles.trait}>{statNames[s]} {run.hero[s]}</Text>)}<Text style={styles.muted}>{t("ui.031", { name: roles[run.role].name, level: run.progression.level })}</Text></View>
         <LevelProgress run={run} onAllocate={() => setScreen('growth')} />
         {run.effects.map(effect => <View key={effect.id} style={styles.result}><Text style={styles.sectionTitle}>{t('events.effect.active', { name: worldEffects[effect.id].name, battles: effect.battles })}</Text><Text style={styles.muted}>{worldEffects[effect.id].description}</Text></View>)}
@@ -111,11 +115,11 @@ export default function App() {
           <Pressable accessibilityRole="button" onPress={abandon} style={{ alignSelf: 'center', padding: 20 }}><Text style={styles.muted}>{t("ui.044")}</Text></Pressable>
         </>}
       </>}
-      {screen === 'game' && tab === 'equipment' && <>{run ? <EquipmentPanel run={run} onEquip={wear} onAllocate={() => setScreen('growth')} /> : <><Text style={styles.title}>{t("ui.045")}</Text><Text style={styles.body}>{t("ui.046")}</Text><Button title={t("ui.047")} onPress={() => setTab('adventure')} /></>}</>}
+      {screen === 'game' && tab === 'equipment' && <>{run ? <InventoryPanel run={run} onUse={consume} onEquip={wear} onAllocate={() => setScreen('growth')} /> : <><Text style={styles.title}>{t("ui.045")}</Text><Text style={styles.body}>{t("ui.046")}</Text><Button title={t("ui.047")} onPress={() => setTab('adventure')} /></>}</>}
       {screen === 'game' && tab === 'journal' && <><Text style={styles.eyebrow}>{t("ui.048")}</Text><Text style={styles.title}>{t("ui.049")}</Text><Text style={styles.body}>{t("ui.050")}</Text>{run ? [...run.journal].reverse().map((entry, i) => <View style={styles.journalEntry} key={i}><Text style={styles.eyebrow}>{t("ui.051", { value1: String(run.journal.length - i).padStart(2, '0') })}</Text><Text style={styles.body}>{entry}</Text></View>) : <View style={styles.empty}><Text style={styles.emptyMark}>✎</Text><Text style={styles.body}>{t("ui.052")}</Text><Button title={t("ui.053")} onPress={() => setTab('adventure')} /></View>}</>}
       {screen === 'game' && tab === 'records' && <><Text style={styles.eyebrow}>{t("ui.054")}</Text><Text style={styles.title}>{t("ui.055")}</Text><Text style={styles.body}>{t("ui.056")}</Text><View style={styles.summary}><Text style={styles.statValue}>{save.records.length} <Text style={styles.muted}>{t("ui.057")}</Text></Text><Text style={styles.statValue}>{new Set(save.records.map(r => r.ending)).size}<Text style={styles.muted}>{t("ui.058")}</Text></Text></View>{save.records.length ? save.records.map(r => <View key={r.id} style={styles.journalEntry}><Text style={styles.eyebrow}>{roles[r.role].name}</Text><Text style={styles.recordTitle}>{endingText(r.ending)}</Text><Text style={styles.muted}>{t("ui.059", { days: r.days, relics: r.relics })}</Text></View>) : <View style={styles.empty}><Text style={styles.emptyMark}>✧</Text><Text style={styles.body}>{t("ui.060")}</Text></View>}<Text style={styles.footnote}>{t("ui.061")}</Text></>}
     </ScrollView>
-    {screen === 'game' && <View style={styles.navigation}>{([{ id: 'adventure', icon: '↟', name: t("ui.062") }, { id: 'equipment', icon: '⚔', name: t("ui.063") }, { id: 'journal', icon: '≡', name: t("ui.064") }, { id: 'records', icon: '✧', name: t("ui.065") }] as const).map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={styles.navItem}><Text style={[styles.navIcon, tab === item.id && { color: colors.gold }]}>{item.icon}</Text><Text style={[styles.navLabel, tab === item.id && { color: colors.gold }]}>{item.name}</Text></Pressable>)}</View>}
+    {screen === 'game' && <View style={styles.navigation}>{([{ id: 'adventure', icon: '↟', name: t("ui.062") }, { id: 'equipment', icon: '▣', name: t("ui.063") }, { id: 'journal', icon: '≡', name: t("ui.064") }, { id: 'records', icon: '✧', name: t("ui.065") }] as const).map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityState={{ selected: tab === item.id }} onPress={() => setTab(item.id)} style={styles.navItem}><Text style={[styles.navIcon, tab === item.id && { color: colors.gold }]}>{item.icon}</Text><Text style={[styles.navLabel, tab === item.id && { color: colors.gold }]}>{item.name}</Text></Pressable>)}</View>}
     </>}
   </SafeAreaView></SafeAreaProvider>;
 }

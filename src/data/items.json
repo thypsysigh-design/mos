@@ -1,0 +1,62 @@
+{
+  "sword": {
+    "kind": "equipment",
+    "slot": "weapon",
+    "effect": "physical_attack",
+    "amount": 2,
+    "buy": 12,
+    "sell": 6,
+    "names": {
+      "ko": "은빛 환도"
+    },
+    "flavors": {}
+  },
+  "charm": {
+    "kind": "equipment",
+    "slot": "armor",
+    "effect": "defense",
+    "amount": 1,
+    "buy": 8,
+    "sell": 4,
+    "names": {
+      "ko": "삼재 부적"
+    },
+    "flavors": {}
+  },
+  "blade": {
+    "kind": "equipment",
+    "slot": "weapon",
+    "effect": "physical_attack",
+    "amount": 3,
+    "buy": 24,
+    "sell": 12,
+    "names": {
+      "ko": "귀문검"
+    },
+    "flavors": {}
+  },
+  "potion": {
+    "kind": "consumable",
+    "slot": "",
+    "effect": "heal_hp",
+    "amount": 12,
+    "buy": 4,
+    "sell": 2,
+    "names": {
+      "ko": "산삼 탕약"
+    },
+    "flavors": {}
+  },
+  "spirit_potion": {
+    "kind": "consumable",
+    "slot": "",
+    "effect": "heal_mp",
+    "amount": 15,
+    "buy": 4,
+    "sell": 2,
+    "names": {
+      "ko": "영지 환약"
+    },
+    "flavors": {}
+  }
+}

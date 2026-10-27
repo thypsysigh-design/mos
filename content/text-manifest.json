@@ -546,42 +546,6 @@
     "notes": ""
   },
   {
-    "id": "game.019",
-    "group": "game",
-    "context": "src/game.ts:31",
-    "notes": ""
-  },
-  {
-    "id": "game.020",
-    "group": "game",
-    "context": "src/game.ts:31",
-    "notes": ""
-  },
-  {
-    "id": "game.021",
-    "group": "game",
-    "context": "src/game.ts:32",
-    "notes": ""
-  },
-  {
-    "id": "game.022",
-    "group": "game",
-    "context": "src/game.ts:32",
-    "notes": ""
-  },
-  {
-    "id": "game.023",
-    "group": "game",
-    "context": "src/game.ts:33",
-    "notes": ""
-  },
-  {
-    "id": "game.024",
-    "group": "game",
-    "context": "src/game.ts:33",
-    "notes": ""
-  },
-  {
     "id": "game.025",
     "group": "game",
     "context": "src/game.ts:36",
@@ -1461,7 +1425,7 @@
     "id": "game.171",
     "group": "game",
     "context": "src/game.ts:214",
-    "notes": "{restored}"
+    "notes": "{name}, {restored}"
   },
   {
     "id": "game.172",
@@ -2100,18 +2064,6 @@
     "notes": ""
   },
   {
-    "id": "items.potion.name",
-    "group": "events",
-    "context": "src/game.ts / src/ShopPanel.tsx",
-    "notes": ""
-  },
-  {
-    "id": "items.potion.description",
-    "group": "events",
-    "context": "src/game.ts / src/ShopPanel.tsx",
-    "notes": ""
-  },
-  {
     "id": "shop.heading",
     "group": "events",
     "context": "src/game.ts / src/ShopPanel.tsx",
@@ -2212,5 +2164,203 @@
     "group": "events",
     "context": "src/game.ts",
     "notes": ""
+  },
+  {
+    "id": "inventory.title",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "inventory.summary",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": "{types}, {count}"
+  },
+  {
+    "id": "inventory.count",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": "{count}"
+  },
+  {
+    "id": "inventory.equipment",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "inventory.consumable",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "inventory.quest",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "inventory.equipped",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "inventory.not_equipped",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "inventory.equip",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": "{name}"
+  },
+  {
+    "id": "inventory.unequip",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": "{name}"
+  },
+  {
+    "id": "inventory.empty",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "inventory.sell_price",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": "{price}"
+  },
+  {
+    "id": "inventory.auto_potion",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "inventory.relic_name",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "inventory.relic_help",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "inventory.character",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "inventory.locked",
+    "group": "inventory",
+    "context": "src/InventoryPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "vitals.hp",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": "{current}, {max}"
+  },
+  {
+    "id": "vitals.mp",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": "{current}, {max}"
+  },
+  {
+    "id": "items.use",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": "{name}"
+  },
+  {
+    "id": "items.used_hp",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": "{name}, {amount}"
+  },
+  {
+    "id": "items.used_mp",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": "{name}, {amount}"
+  },
+  {
+    "id": "items.full_hp",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "items.full_mp",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "items.unavailable",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "items.locked",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": ""
+  },
+  {
+    "id": "vitals.regeneration",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": "{hp}, {mp}"
+  },
+  {
+    "id": "vitals.skill_cost",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": "{cost}"
+  },
+  {
+    "id": "vitals.battle_mp",
+    "group": "vitals",
+    "context": "src/game.ts / src/VitalsPanel.tsx",
+    "notes": "{before}, {after}"
+  },
+  {
+    "id": "items.effect.physical_attack",
+    "group": "items",
+    "context": "src/items.ts",
+    "notes": "{amount}"
+  },
+  {
+    "id": "items.effect.defense",
+    "group": "items",
+    "context": "src/items.ts",
+    "notes": "{amount}"
+  },
+  {
+    "id": "items.effect.heal_hp",
+    "group": "items",
+    "context": "src/items.ts",
+    "notes": "{amount}"
+  },
+  {
+    "id": "items.effect.heal_mp",
+    "group": "items",
+    "context": "src/items.ts",
+    "notes": "{amount}"
   }
 ]

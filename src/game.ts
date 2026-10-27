@@ -1,4 +1,7 @@
 import { t } from './localization';
+import { equipment, itemCatalog, type ItemId } from './items';
+export { equipment, itemCatalog } from './items';
+export type { ItemId } from './items';
 export type Role = 'warrior' | 'archer' | 'swordsman' | 'sorcerer' | 'medium' | 'healer';
 export type AttackRange = 'melee' | 'ranged' | 'mixed';
 export type Stat = 'mu' | 'ji' | 'de' | 'che' | 'un';
@@ -6,6 +9,8 @@ export type StatAllocation = Record<Stat, number>;
 export const CREATION_POINTS = 15;
 export const MAX_LEVEL = 30;
 export const LEVEL_STAT_POINTS = 2;
+export const MAX_MENTAL = 30;
+export const SKILL_MENTAL_COST = 10;
 export function experienceForNextLevel(level: number): number | null { return level >= MAX_LEVEL ? null : level * 10; }
 export function emptyAllocation(): StatAllocation { return { mu: 0, ji: 0, de: 0, che: 0, un: 0 }; }
 export function allocationTotal(allocation: StatAllocation): number { return allocation.mu + allocation.ji + allocation.de + allocation.che + allocation.un; }
@@ -16,14 +21,13 @@ export type Hero = { hp: number; maxHp: number; gold: number; relics: number } &
 export type Choice = { label: string; hint: string; stat?: Stat; difficulty?: number; cost?: number; success: Effect; failure?: Effect };
 type Effect = { text: string; hp?: number; gold?: number; relics?: number; flag?: string; potions?: number; gainItem?: ItemId; loseItem?: boolean; status?: WorldEffectId };
 export type EventCategory = 'battle' | 'story' | 'shop';
-export type ItemId = 'sword' | 'blade' | 'charm' | 'potion';
 export type WorldEffectId = 'blessing' | 'curse';
 export type WorldEffect = { id: WorldEffectId; battles: number };
 export type Scene = { category: EventCategory; id: string; title: string; place: string; text: string; choices: Choice[] };
 export type Combat = { enemy: string; hp: number; maxHp: number; attack: number; turn: number; intent: 'strike' | 'heavy' | 'recover'; log: string[]; boss: boolean; damageType: 'physical' | 'magic'; physicalDefense: number; magicDefense: number; playerBuff: number; enemyDebuff: number };
-export type Progression = { level: number; exp: number; statPoints: number; potions: number; energy: number; inventory: string[]; weapon: string | null; armor: string | null };
-export type BattleReport = { enemy: string; outcome: 'victory' | 'defeat' | 'retreat'; rounds: number; startHp: number; endHp: number; gold: number; exp: number; items: string[]; levels: number; log: string[] };
-export type Run = { role: Role; day: number; seed: number; hero: Hero; sceneId: string; visited: string[]; flags: string[]; journal: string[]; result: string | null; ending: string | null; combat: Combat | null; progression: Progression; battleReport: BattleReport | null; loot: ItemId[]; effects: WorldEffect[]; transactionNotice: string | null };
+export type Progression = { level: number; exp: number; statPoints: number; potions: number; spiritPotions: number; energy: number; maxEnergy: number; inventory: string[]; weapon: string | null; armor: string | null };
+export type BattleReport = { enemy: string; outcome: 'victory' | 'defeat' | 'retreat'; rounds: number; startHp: number; endHp: number; gold: number; exp: number; items: string[]; levels: number; log: string[]; startMental?: number; endMental?: number };
+export type Run = { role: Role; day: number; seed: number; hero: Hero; sceneId: string; visited: string[]; flags: string[]; journal: string[]; result: string | null; ending: string | null; combat: Combat | null; progression: Progression; battleReport: BattleReport | null; loot: ItemId[]; effects: WorldEffect[]; transactionNotice: string | null; itemNotice: string | null };
 export type RecordEntry = { id: string; role: Role; ending: string; days: number; relics: number };
 export type Save = { version: 1; run: Run | null; records: RecordEntry[] };
 export const roles: Record<Role, { name: string; subtitle: string; description: string; mark: string; range: AttackRange; attackScale: number; stats: Record<Stat, number> }> = {
@@ -35,23 +39,16 @@ export const roles: Record<Role, { name: string; subtitle: string; description: 
   healer: { name: t("game.016"), subtitle: t("game.017"), description: t("game.018"), mark: '生', range: 'mixed', attackScale: 0.45, stats: { mu: 1, ji: 4, de: 1, che: 5, un: 4 } },
 };
 const legacyRoles: Record<string, Role> = { ranger: 'swordsman', scholar: 'sorcerer', wanderer: 'archer', monk: 'healer' };
-export const equipment: Record<string, { name: string; slot: 'weapon' | 'armor'; bonus: number; description: string }> = {
-  sword: { name: t("game.019"), slot: 'weapon', bonus: 2, description: t("game.020") },
-  charm: { name: t("game.021"), slot: 'armor', bonus: 1, description: t("game.022") },
-  blade: { name: t("game.023"), slot: 'weapon', bonus: 3, description: t("game.024") },
-};
-export const itemCatalog: Record<ItemId, { name: string; description: string; buy: number; sell: number }> = {
-  sword: { ...equipment.sword, buy: 12, sell: 6 },
-  charm: { ...equipment.charm, buy: 8, sell: 4 },
-  blade: { ...equipment.blade, buy: 24, sell: 12 },
-  potion: { name: t('items.potion.name'), description: t('items.potion.description'), buy: 4, sell: 2 },
-};
 export const worldEffects: Record<WorldEffectId, { name: string; description: string; modifier: number }> = {
   blessing: { name: t('events.blessing'), description: t('events.blessing.description'), modifier: 2 },
   curse: { name: t('events.curse'), description: t('events.curse.description'), modifier: -2 },
 };
 export function eventCategory(run: Run): EventCategory { return currentScene(run).category; }
-export function itemCount(run: Run, id: ItemId): number { return id === 'potion' ? run.progression.potions : Number(run.progression.inventory.includes(id)); }
+export function itemCount(run: Run, id: ItemId): number { return id === 'potion' ? run.progression.potions : id === 'spirit_potion' ? run.progression.spiritPotions : Number(run.progression.inventory.includes(id)); }
+export type InventoryEntry = { id: ItemId; count: number; equipped: boolean; category: 'equipment' | 'consumable' };
+export function getInventory(run: Run): InventoryEntry[] {
+  return (Object.keys(itemCatalog) as ItemId[]).map(id => ({ id, count: itemCount(run, id), equipped: itemCatalog[id].kind === 'equipment' && run.progression[equipment[id].slot] === id, category: itemCatalog[id].kind })).filter(entry => entry.count > 0);
+}
 export const skills: Record<Role, string> = { warrior: t("game.002"), archer: t("game.005"), swordsman: t("game.008"), sorcerer: t("game.011"), medium: t("game.014"), healer: t("game.017") };
 export const statNames: Record<Stat, string> = { mu: t("game.025"), ji: t("game.026"), de: t("game.027"), che: t("game.028"), un: t("game.029") };
 export const statEffects: Record<Stat, string> = { mu: t("game.030"), ji: t("game.031"), de: t("game.032"), che: t("game.033"), un: t("game.034") };
@@ -106,9 +103,9 @@ export function newRun(role: Role, seed = Date.now(), allocation?: StatAllocatio
   if (allocation && !validAllocation(allocation)) throw new Error(t("game.128"));
   const stats = { ...roles[role].stats };
   if (allocation) for (const key of Object.keys(stats) as Stat[]) stats[key] += allocation[key];
-  return { role, seed: seed >>> 0, day: 1, hero: { ...stats, hp: maxHealth(stats.che, 1), maxHp: maxHealth(stats.che, 1), gold: 8, relics: 0 }, sceneId: 'gate', visited: ['gate'], flags: [], journal: [t("game.129")], result: null, ending: null, combat: null, progression: initialProgression(), battleReport: null, loot: [], effects: [], transactionNotice: null };
+  return { role, seed: seed >>> 0, day: 1, hero: { ...stats, hp: maxHealth(stats.che, 1), maxHp: maxHealth(stats.che, 1), gold: 8, relics: 0 }, sceneId: 'gate', visited: ['gate'], flags: [], journal: [t("game.129")], result: null, ending: null, combat: null, progression: initialProgression(), battleReport: null, loot: [], effects: [], transactionNotice: null, itemNotice: null };
 }
-export function initialProgression(): Progression { return { level: 1, exp: 0, statPoints: 0, potions: 2, energy: 3, inventory: [], weapon: null, armor: null }; }
+export function initialProgression(): Progression { return { level: 1, exp: 0, statPoints: 0, potions: 2, spiritPotions: 1, energy: MAX_MENTAL, maxEnergy: MAX_MENTAL, inventory: [], weapon: null, armor: null }; }
 export function gainExperience(run: Run, amount: number): Run {
   if (!Number.isSafeInteger(amount) || amount < 0) throw new Error('Experience reward must be a nonnegative safe integer');
   const hero = { ...run.hero }, progression = { ...run.progression };
@@ -173,12 +170,13 @@ export function choose(run: Run, index: number): Run {
   if (effect.gainItem) {
     const id = effect.gainItem;
     if (id === 'potion') next.progression.potions++;
+    else if (id === 'spirit_potion') next.progression.spiritPotions++;
     else if (!next.progression.inventory.includes(id)) next.progression.inventory.push(id);
     else { next.hero.gold += itemCatalog[id].sell; changes.push(t('events.item.duplicate', { name: itemCatalog[id].name, gold: itemCatalog[id].sell })); }
     if (!changes.length) changes.push(t('events.item.gain', { name: itemCatalog[id].name }));
   }
   if (effect.loseItem) {
-    const candidates: ItemId[] = [...next.progression.inventory as ItemId[], ...(next.progression.potions > 0 ? ['potion' as const] : [])];
+    const candidates: ItemId[] = [...next.progression.inventory as ItemId[], ...(next.progression.potions > 0 ? ['potion' as const] : []), ...(next.progression.spiritPotions > 0 ? ['spirit_potion' as const] : [])];
     if (candidates.length) {
       const [value, nextSeed] = random(next.seed); next.seed = nextSeed;
       const id = candidates[Math.floor(value * candidates.length)];
@@ -196,11 +194,11 @@ export function choose(run: Run, index: number): Run {
 }
 function removeOwnedItem(run: Run, id: ItemId): Run {
   const p = run.progression;
-  return { ...run, progression: { ...p, potions: p.potions - (id === 'potion' ? 1 : 0), inventory: id === 'potion' ? [...p.inventory] : p.inventory.filter(value => value !== id), weapon: p.weapon === id ? null : p.weapon, armor: p.armor === id ? null : p.armor } };
+  return { ...run, progression: { ...p, potions: p.potions - (id === 'potion' ? 1 : 0), spiritPotions: p.spiritPotions - (id === 'spirit_potion' ? 1 : 0), inventory: itemCatalog[id].kind === 'consumable' ? [...p.inventory] : p.inventory.filter(value => value !== id), weapon: p.weapon === id ? null : p.weapon, armor: p.armor === id ? null : p.armor } };
 }
 export function tradeReason(run: Run, id: ItemId, direction: 'buy' | 'sell'): string | null {
   if (!Object.hasOwn(itemCatalog, id) || eventCategory(run) !== 'shop' || run.combat || run.ending || run.hero.hp <= 0) return t('shop.closed');
-  if (direction === 'buy' && id !== 'potion' && itemCount(run, id)) return t('shop.owned');
+  if (direction === 'buy' && itemCatalog[id].kind === 'equipment' && itemCount(run, id)) return t('shop.owned');
   if (direction === 'buy' && run.hero.gold < itemCatalog[id].buy) return t('shop.no_gold');
   if (direction === 'sell' && itemCount(run, id) === 0) return t('shop.no_item');
   return null;
@@ -209,13 +207,27 @@ export function buyItem(run: Run, id: ItemId): Run {
   if (tradeReason(run, id, 'buy')) return run;
   const item = itemCatalog[id], p = run.progression;
   const message = t('shop.bought', { name: item.name, price: item.buy });
-  return { ...run, hero: { ...run.hero, gold: run.hero.gold - item.buy }, progression: { ...p, inventory: id === 'potion' ? [...p.inventory] : [...p.inventory, id], potions: p.potions + (id === 'potion' ? 1 : 0) }, transactionNotice: message, journal: [...run.journal, t('events.transaction_log', { day: run.day, message })] };
+  return { ...run, hero: { ...run.hero, gold: run.hero.gold - item.buy }, progression: { ...p, inventory: itemCatalog[id].kind === 'consumable' ? [...p.inventory] : [...p.inventory, id], potions: p.potions + (id === 'potion' ? 1 : 0), spiritPotions: p.spiritPotions + (id === 'spirit_potion' ? 1 : 0) }, transactionNotice: message, journal: [...run.journal, t('events.transaction_log', { day: run.day, message })] };
 }
 export function sellItem(run: Run, id: ItemId): Run {
   if (tradeReason(run, id, 'sell')) return run;
   const item = itemCatalog[id], next = removeOwnedItem(run, id);
   const message = t('shop.sold', { name: item.name, price: item.sell });
   return { ...next, hero: { ...next.hero, gold: next.hero.gold + item.sell }, transactionNotice: message, journal: [...run.journal, t('events.transaction_log', { day: run.day, message })] };
+}
+export function itemUseReason(run: Run, id: ItemId): string | null {
+  if (!Object.hasOwn(itemCatalog, id) || itemCatalog[id].kind !== 'consumable' || itemCount(run, id) === 0) return t('items.unavailable');
+  if (run.combat || run.hero.hp <= 0) return t('items.locked');
+  if (id === 'potion' && run.hero.hp === run.hero.maxHp) return t('items.full_hp');
+  if (id === 'spirit_potion' && run.progression.energy === run.progression.maxEnergy) return t('items.full_mp');
+  return null;
+}
+export function useItem(run: Run, id: ItemId): Run {
+  if (itemUseReason(run, id)) return run;
+  const next = removeOwnedItem(run, id);
+  const amount = id === 'potion' ? Math.min(itemCatalog.potion.amount, run.hero.maxHp - run.hero.hp) : Math.min(itemCatalog.spirit_potion.amount, run.progression.maxEnergy - run.progression.energy);
+  const message = t(id === 'potion' ? 'items.used_hp' : 'items.used_mp', { name: itemCatalog[id].name, amount });
+  return { ...next, hero: { ...next.hero, hp: next.hero.hp + (id === 'potion' ? amount : 0) }, progression: { ...next.progression, energy: next.progression.energy + (id === 'spirit_potion' ? amount : 0) }, itemNotice: message, journal: [...run.journal, t('events.transaction_log', { day: run.day, message })] };
 }
 export function advance(run: Run): Run {
   if ((!run.result && eventCategory(run) !== 'shop') || run.ending || run.combat) return run;
@@ -277,12 +289,21 @@ export function decodeSave(raw: string | null): Save {
       r.loot ??= [];
       r.effects ??= [];
       r.transactionNotice ??= null;
+      r.itemNotice ??= null;
+      if (!(r.itemNotice === null || typeof r.itemNotice === 'string')) return empty;
       if (!Array.isArray(r.loot) || !r.loot.every((id: unknown) => typeof id === 'string' && Object.hasOwn(itemCatalog, id)) || !Array.isArray(r.effects) || !r.effects.every((effect: WorldEffect) => effect && Object.hasOwn(worldEffects, effect.id) && Number.isInteger(effect.battles) && effect.battles >= 1 && effect.battles <= 3) || new Set(r.effects.map((effect: WorldEffect) => effect.id)).size !== r.effects.length || !(r.transactionNotice === null || typeof r.transactionNotice === 'string')) return empty;
       r.battleReport ??= null;
       const report = r.battleReport;
-      if (report && (typeof report.enemy !== 'string' || !['victory', 'defeat', 'retreat'].includes(report.outcome) || !['rounds', 'startHp', 'endHp', 'gold', 'exp', 'levels'].every(k => Number.isInteger(report[k]) && report[k] >= 0) || !Array.isArray(report.items) || !report.items.every((id: unknown) => typeof id === 'string' && Object.hasOwn(itemCatalog, id)) || !Array.isArray(report.log) || !report.log.every((line: unknown) => typeof line === 'string'))) return empty;
+      if (report && (typeof report.enemy !== 'string' || !['startMental', 'endMental'].every(k => report[k] === undefined || (Number.isSafeInteger(report[k]) && report[k] >= 0)) || !['victory', 'defeat', 'retreat'].includes(report.outcome) || !['rounds', 'startHp', 'endHp', 'gold', 'exp', 'levels'].every(k => Number.isInteger(report[k]) && report[k] >= 0) || !Array.isArray(report.items) || !report.items.every((id: unknown) => typeof id === 'string' && Object.hasOwn(itemCatalog, id)) || !Array.isArray(report.log) || !report.log.every((line: unknown) => typeof line === 'string'))) return empty;
       const p = r.progression;
-      if (!p || !['level', 'exp', 'potions', 'energy'].every(k => Number.isSafeInteger(p[k]) && p[k] >= 0) || p.level < 1 || p.energy > 3 || !Array.isArray(p.inventory) || !p.inventory.every((id: unknown) => typeof id === 'string' && Object.hasOwn(equipment, id)) || !['weapon', 'armor'].every(slot => p[slot] === null || (p.inventory.includes(p[slot]) && equipment[p[slot]]?.slot === slot))) return empty;
+      if (p && !Object.hasOwn(p, 'maxEnergy')) {
+        if (!Number.isSafeInteger(p.energy) || p.energy < 0 || p.energy > 3) return empty;
+        p.energy *= 10; p.maxEnergy = MAX_MENTAL;
+      }
+      if (p && !Object.hasOwn(p, 'spiritPotions')) p.spiritPotions = 0;
+      if (p?.weapon && Object.hasOwn(equipment, p.weapon) && equipment[p.weapon].slot !== 'weapon') p.weapon = null;
+      if (p?.armor && Object.hasOwn(equipment, p.armor) && equipment[p.armor].slot !== 'armor') p.armor = null;
+      if (!p || !['level', 'exp', 'potions', 'spiritPotions', 'energy', 'maxEnergy'].every(k => Number.isSafeInteger(p[k]) && p[k] >= 0) || p.level < 1 || p.maxEnergy < 1 || p.energy > p.maxEnergy || !Array.isArray(p.inventory) || !p.inventory.every((id: unknown) => typeof id === 'string' && Object.hasOwn(equipment, id)) || !['weapon', 'armor'].every(slot => p[slot] === null || (p.inventory.includes(p[slot]) && equipment[p[slot]]?.slot === slot))) return empty;
       // Preserve old uncapped saves while applying the new level ceiling.
       if (p.level > MAX_LEVEL) {
         const removedLevels = p.level - MAX_LEVEL;
@@ -302,14 +323,16 @@ export function beginCombat(run: Run): Run {
   const boss = run.sceneId === 'heart' || run.sceneId === 'boss';
   const enemy = boss ? t("game.157") : run.sceneId === 'wolf' ? t("game.158") : run.sceneId === 'bridge' ? t("game.159") : t("game.160");
   const hp = boss ? 34 : run.sceneId === 'wolf' ? 20 : 16;
-  return { ...run, loot: [], combat: { enemy, hp, maxHp: hp, attack: boss ? 7 : 5, turn: 1, intent: 'strike', boss, damageType: boss || run.sceneId === 'bridge' ? 'magic' : 'physical', physicalDefense: boss ? 3 : 1, magicDefense: boss ? 3 : 1, playerBuff: 0, enemyDebuff: 0, log: [t("game.161", { enemy: enemy })] }, progression: { ...run.progression, energy: Math.max(2, run.progression.energy) } };
+  return { ...run, loot: [], combat: { enemy, hp, maxHp: hp, attack: boss ? 7 : 5, turn: 1, intent: 'strike', boss, damageType: boss || run.sceneId === 'bridge' ? 'magic' : 'physical', physicalDefense: boss ? 3 : 1, magicDefense: boss ? 3 : 1, playerBuff: 0, enemyDebuff: 0, log: [t("game.161", { enemy: enemy })] }, progression: { ...run.progression } };
 }
-export type BattleAction = 'attack' | 'guard' | 'skill' | 'potion' | 'flee';
+export type BattleAction = 'attack' | 'guard' | 'skill' | 'potion' | 'spirit_potion' | 'flee';
 export function battleDisabled(run: Run, action: BattleAction): string | null {
   if (!run.combat || run.ending) return t("game.162");
-  if (action === 'skill' && run.progression.energy < 2) return t("game.163");
+  if (action === 'skill' && run.progression.energy < SKILL_MENTAL_COST) return t("game.163");
   if (action === 'potion' && run.progression.potions < 1) return t("game.164");
   if (action === 'potion' && run.hero.hp === run.hero.maxHp) return t("game.165");
+  if (action === 'spirit_potion' && run.progression.spiritPotions < 1) return t('items.unavailable');
+  if (action === 'spirit_potion' && run.progression.energy === run.progression.maxEnergy) return t('items.full_mp');
   if (action === 'flee' && run.combat.boss) return t("game.166");
   return null;
 }
@@ -321,15 +344,26 @@ export function battleTurn(run: Run, action: BattleAction): Run {
   const log: string[] = [t("game.167", { turn: combat.turn })];
   let guarded = false;
   const stats = combatStats(run);
+  function recover() {
+    const blessing = run.effects.some(effect => effect.id === 'blessing');
+    const hpRecovery = blessing ? Math.min(2, hero.maxHp - hero.hp) : 0;
+    const mpRecovery = Math.min((blessing ? 3 : 0) + (combat.playerBuff > 0 ? 2 : 0), progression.maxEnergy - progression.energy);
+    hero.hp += hpRecovery; progression.energy += mpRecovery;
+    if (hpRecovery || mpRecovery) log.push(t('vitals.regeneration', { hp: hpRecovery, mp: mpRecovery }));
+  }
   if (action === 'flee') {
     if (draw() < 0.7) return { ...run, seed, combat: null, result: t("game.168"), journal: [...run.journal, t("game.169", { day: run.day, enemy: combat.enemy })] };
     log.push(t("game.170"));
   } else if (action === 'potion') {
     progression.potions--;
-    const restored = Math.min(12, hero.maxHp - hero.hp); hero.hp += restored;
-    log.push(t("game.171", { restored: restored }));
+    const restored = Math.min(itemCatalog.potion.amount, hero.maxHp - hero.hp); hero.hp += restored;
+    log.push(t("game.171", { name: itemCatalog.potion.name, restored: restored }));
+  } else if (action === 'spirit_potion') {
+    progression.spiritPotions--;
+    const restored = Math.min(itemCatalog.spirit_potion.amount, progression.maxEnergy - progression.energy); progression.energy += restored;
+    log.push(t('items.used_mp', { name: itemCatalog.spirit_potion.name, amount: restored }));
   } else if (action === 'guard') {
-    guarded = true; progression.energy = Math.min(3, progression.energy + 1);
+    guarded = true; progression.energy = Math.min(progression.maxEnergy, progression.energy + 3);
     log.push(t("game.172"));
   } else {
     const profile = roles[run.role];
@@ -338,7 +372,8 @@ export function battleTurn(run: Run, action: BattleAction): Run {
     const kind = `${range === 'ranged' ? t("game.173") : t("game.174")} ${magical ? t("game.175") : t("game.176")}`;
     let bonus = 0;
     if (action === 'skill') {
-      progression.energy -= 2;
+      progression.energy -= SKILL_MENTAL_COST;
+      log.push(t('vitals.skill_cost', { cost: SKILL_MENTAL_COST }));
       if (run.role === 'warrior') { guarded = true; bonus = 3; log.push(t("game.177")); }
       if (run.role === 'swordsman') bonus = 5;
       if (run.role === 'archer') { combat.enemyDebuff = 3; bonus = 3; }
@@ -364,13 +399,14 @@ export function battleTurn(run: Run, action: BattleAction): Run {
     }
   }
   if (combat.hp === 0) {
+    recover();
     const reward = combat.boss ? 12 : 5;
     hero.gold += reward; hero.relics++;
     const dropped: ItemId[] = [];
     if (draw() < (combat.boss ? 0.6 : 0.4)) {
-      const pool = (Object.keys(itemCatalog) as ItemId[]).filter(id => id === 'potion' || !progression.inventory.includes(id));
+      const pool = (Object.keys(itemCatalog) as ItemId[]).filter(id => itemCatalog[id].kind === 'consumable' || !progression.inventory.includes(id));
       const id = pool[Math.floor(draw() * pool.length)]; dropped.push(id);
-      if (id === 'potion') progression.potions++; else progression.inventory.push(id);
+      if (id === 'potion') progression.potions++; else if (id === 'spirit_potion') progression.spiritPotions++; else progression.inventory.push(id);
     }
     log.push(t("game.186", { reward, value2: combat.boss ? 12 : 6, value3: dropped.length ? t("game.185", { name: itemCatalog[dropped[0]].name }) : '' }));
     if (!dropped.length) log.push(t('events.drop.none'));
@@ -392,6 +428,7 @@ export function battleTurn(run: Run, action: BattleAction): Run {
     }
   }
   if (hero.hp === 0) return { ...run, seed, hero, progression, combat: null, result: log.join('\n'), ending: '안개에 남은 발자국', journal: [...run.journal, t("game.193", { day: run.day, enemy: combat.enemy, value3: [...combat.log, ...log].join('\n') })] };
+  recover();
   combat.playerBuff = Math.max(0, combat.playerBuff - 1);
   combat.enemyDebuff = Math.max(0, combat.enemyDebuff - 1);
   const roll = draw(); combat.intent = roll < 0.35 ? 'heavy' : roll < 0.55 ? 'recover' : 'strike';
@@ -411,9 +448,10 @@ export function autoBattle(run: Run): Run {
   let next = run, rounds = 0;
   let battleLog: string[] = [];
   while (next.combat && rounds < 60) {
-    const healerNeedsSkill = next.role === 'healer' && next.progression.energy >= 2 && next.hero.maxHp - next.hero.hp >= 8;
+    const healerNeedsSkill = next.role === 'healer' && next.progression.energy >= SKILL_MENTAL_COST && next.hero.maxHp - next.hero.hp >= 8;
     const action: BattleAction = healerNeedsSkill ? 'skill' : next.hero.hp <= 12 && next.progression.potions > 0 ? 'potion'
-      : next.progression.energy >= 2 && (next.role !== 'healer' || next.combat.playerBuff === 0 || next.combat.enemyDebuff === 0) ? 'skill'
+      : next.progression.energy < SKILL_MENTAL_COST && next.progression.spiritPotions > 0 ? 'spirit_potion'
+      : next.progression.energy >= SKILL_MENTAL_COST && (next.role !== 'healer' || next.combat.playerBuff === 0 || next.combat.enemyDebuff === 0) ? 'skill'
       : next.combat.intent === 'heavy' ? 'guard' : 'attack';
     const previousLog = next.combat.log;
     next = battleTurn(next, action); rounds++;
@@ -426,5 +464,5 @@ export function autoBattle(run: Run): Run {
   }
   const victory = next.hero.gold > start.hero.gold;
   const log = battleLog;
-  return { ...next, effects: next.effects.map(effect => ({ ...effect, battles: effect.battles - 1 })).filter(effect => effect.battles > 0), battleReport: { enemy, outcome: next.hero.hp === 0 ? 'defeat' : victory ? 'victory' : 'retreat', rounds: start.combat!.turn - 1 + rounds, startHp: start.hero.hp, endHp: next.hero.hp, gold: next.hero.gold - start.hero.gold, exp: victory ? start.combat!.boss ? 12 : 6 : 0, items: next.loot, levels: next.progression.level - start.progression.level, log }, result: log.join('\n') };
+  return { ...next, effects: next.effects.map(effect => ({ ...effect, battles: effect.battles - 1 })).filter(effect => effect.battles > 0), battleReport: { enemy, outcome: next.hero.hp === 0 ? 'defeat' : victory ? 'victory' : 'retreat', rounds: start.combat!.turn - 1 + rounds, startHp: start.hero.hp, endHp: next.hero.hp, gold: next.hero.gold - start.hero.gold, exp: victory ? start.combat!.boss ? 12 : 6 : 0, items: next.loot, levels: next.progression.level - start.progression.level, log, startMental: start.progression.energy, endMental: next.progression.energy }, result: log.join('\n') };
 }

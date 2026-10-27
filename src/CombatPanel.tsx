@@ -1,8 +1,7 @@
 import { t } from './localization';
-import { LevelProgress } from './LevelProgress';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { itemCatalog, LEVEL_STAT_POINTS, equipment, roles, combatStats, statNames, statEffects, type Stat, type BattleReport, type Run } from './game';
+import { StyleSheet, Text, View } from 'react-native';
+import { itemCatalog, LEVEL_STAT_POINTS, type BattleReport } from './game';
 
 export function BattleResult({ report }: { report: BattleReport }) {
   const outcome = report.outcome === 'victory' ? t("combat_ui.001") : report.outcome === 'defeat' ? t("combat_ui.002") : t("combat_ui.003");
@@ -10,6 +9,7 @@ export function BattleResult({ report }: { report: BattleReport }) {
     <Text style={s.kicker}>{t("combat_ui.004", { rounds: report.rounds })}</Text>
     <Text accessibilityLiveRegion="polite" style={[s.enemy, { color: '#332311' }]}>{outcome} · {report.enemy}</Text>
     <Text style={[s.detail, { color: '#59462f' }]}>{t("combat_ui.005", { startHp: report.startHp, endHp: report.endHp })}</Text>
+    {report.startMental !== undefined && report.endMental !== undefined && <Text style={[s.detail, { color: '#59462f' }]}>{t('vitals.battle_mp', { before: report.startMental, after: report.endMental })}</Text>}
     <Text style={[s.detail, { color: '#59462f' }]}>{t("combat_ui.007", { gold: report.gold, exp: report.exp, value3: report.outcome === 'victory' ? t("combat_ui.006") : '' })}</Text>
     {report.items.map(id => <Text key={id} style={[s.detail, { color: '#8b2924' }]}>{t("combat_ui.008", { name: itemCatalog[id as keyof typeof itemCatalog].name })}</Text>)}
     {report.levels > 0 && <Text style={[s.detail, { color: '#8b2924' }]}>{t("combat_ui.009", { levels: report.levels })}</Text>}
@@ -18,34 +18,6 @@ export function BattleResult({ report }: { report: BattleReport }) {
     <Text style={s.help}>{t("events.drop.rate")}</Text>
     <Text style={s.kicker}>{t("combat_ui.011")}</Text>
     <View style={s.log}>{report.log.map((line, i) => <Text key={i} style={s.line}>{line}</Text>)}</View>
-  </View>;
-}
-export function EquipmentPanel({ run, onEquip, onAllocate }: { run: Run; onEquip: (id: string) => void; onAllocate?: () => void }) {
-  const stats = combatStats(run);
-  return <View>
-    <Text style={s.enemy}>{t("ui.045")}</Text>
-    <Text style={s.itemName}>{roles[run.role].name} · {roles[run.role].description}</Text>
-    <Text style={s.help}>{t("combat_ui.012")}</Text>
-    <LevelProgress run={run} onAllocate={onAllocate} />
-    <Text style={s.detail}>{t("combat_ui.014", { potions: run.progression.potions })}</Text>
-    <View style={s.item}>
-      <Text style={s.itemName}>{t("combat_ui.015")}</Text>
-      {(Object.keys(statNames) as Stat[]).map(key => <View key={key} style={{ marginTop: 10 }}><Text style={s.itemName}>{statNames[key]} {run.hero[key]}</Text><Text style={s.detail}>{statEffects[key]}</Text></View>)}
-    </View>
-    <View style={s.item}>
-      <Text style={s.itemName}>{t("combat_ui.016")}</Text>
-      <Text style={s.detail}>{t("combat_ui.017", { physicalAttack: stats.physicalAttack, magicAttack: stats.magicAttack })}</Text>
-      <Text style={s.detail}>{t("combat_ui.018", { physicalDefense: stats.physicalDefense, magicDefense: stats.magicDefense })}</Text>
-      <Text style={s.detail}>{t("combat_ui.019", { maxHp: run.hero.maxHp })}</Text>
-      <Text style={s.detail}>{t("combat_ui.020", { value1: (stats.hit * 100).toFixed(1), value2: (stats.evade * 100).toFixed(1) })}</Text>
-      <Text style={s.detail}>{t("combat_ui.021", { value1: (stats.critical * 100).toFixed(1) })}</Text>
-    </View>
-    <Text style={s.help}>{t("combat_ui.023", { value1: run.combat ? t("combat_ui.022") : '' })}</Text>
-    {run.progression.inventory.length === 0 && <Text style={s.detail}>{t("combat_ui.024")}</Text>}
-    {run.progression.inventory.map(id => {
-      const item = equipment[id], equipped = run.progression[item.slot] === id;
-      return <Pressable accessibilityRole="button" accessibilityState={{ disabled: !!run.combat || !!run.ending, selected: equipped }} disabled={!!run.combat || !!run.ending} key={id} onPress={() => onEquip(id)} style={[s.item, equipped && { borderColor: '#cead64' }]}><Text style={s.itemName}>{item.name} {equipped ? t("combat_ui.025") : t("combat_ui.026")}</Text><Text style={s.detail}>{item.description}</Text></Pressable>;
-    })}
   </View>;
 }
 const s = StyleSheet.create({
