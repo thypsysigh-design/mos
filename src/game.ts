@@ -4,6 +4,8 @@ export type AttackRange = 'melee' | 'ranged' | 'mixed';
 export type Stat = 'mu' | 'ji' | 'de' | 'che' | 'un';
 export type StatAllocation = Record<Stat, number>;
 export const CREATION_POINTS = 15;
+export const MAX_LEVEL = 30;
+export function experienceForNextLevel(level: number): number | null { return level >= MAX_LEVEL ? null : level * 10; }
 export function emptyAllocation(): StatAllocation { return { mu: 0, ji: 0, de: 0, che: 0, un: 0 }; }
 export function allocationTotal(allocation: StatAllocation): number { return allocation.mu + allocation.ji + allocation.de + allocation.che + allocation.un; }
 export function validAllocation(allocation: StatAllocation): boolean {
@@ -96,6 +98,20 @@ export function newRun(role: Role, seed = Date.now(), allocation?: StatAllocatio
   return { role, seed: seed >>> 0, day: 1, hero: { ...stats, hp: maxHealth(stats.che, 1), maxHp: maxHealth(stats.che, 1), gold: 8, relics: 0 }, sceneId: 'gate', visited: ['gate'], flags: [], journal: [t("game.129")], result: null, ending: null, combat: null, progression: initialProgression(), battleReport: null };
 }
 export function initialProgression(): Progression { return { level: 1, exp: 0, potions: 2, energy: 3, inventory: [], weapon: null, armor: null }; }
+export function gainExperience(run: Run, amount: number): Run {
+  if (!Number.isSafeInteger(amount) || amount < 0) throw new Error('Experience reward must be a nonnegative safe integer');
+  const hero = { ...run.hero }, progression = { ...run.progression };
+  if (!Number.isInteger(progression.level) || progression.level < 1 || progression.level > MAX_LEVEL) throw new Error('Character level must be between 1 and 30');
+  progression.exp += amount;
+  if (!Number.isSafeInteger(progression.exp)) throw new Error('Experience exceeds the supported range');
+  while (progression.level < MAX_LEVEL && progression.exp >= progression.level * 10) {
+    progression.exp -= progression.level * 10;
+    progression.level++;
+    hero.maxHp += 4;
+    hero.hp = Math.min(hero.maxHp, hero.hp + 8);
+  }
+  return { ...run, hero, progression };
+}
 function random(seed: number): [number, number] { const next = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return [next / 4294967296, next]; }
 export function currentScene(run: Run): Scene {
   if (run.sceneId !== 'heart') return scenes.find(s => s.id === run.sceneId)!;
@@ -176,7 +192,14 @@ export function decodeSave(raw: string | null): Save {
       const report = r.battleReport;
       if (report && (typeof report.enemy !== 'string' || !['victory', 'defeat', 'retreat'].includes(report.outcome) || !['rounds', 'startHp', 'endHp', 'gold', 'exp', 'levels'].every(k => Number.isInteger(report[k]) && report[k] >= 0) || !Array.isArray(report.items) || !report.items.every((id: unknown) => typeof id === 'string' && Object.hasOwn(equipment, id)) || !Array.isArray(report.log) || !report.log.every((line: unknown) => typeof line === 'string'))) return empty;
       const p = r.progression;
-      if (!p || !['level', 'exp', 'potions', 'energy'].every(k => Number.isInteger(p[k]) && p[k] >= 0) || p.level < 1 || p.energy > 3 || !Array.isArray(p.inventory) || !p.inventory.every((id: unknown) => typeof id === 'string' && Object.hasOwn(equipment, id)) || !['weapon', 'armor'].every(slot => p[slot] === null || (p.inventory.includes(p[slot]) && equipment[p[slot]]?.slot === slot))) return empty;
+      if (!p || !['level', 'exp', 'potions', 'energy'].every(k => Number.isSafeInteger(p[k]) && p[k] >= 0) || p.level < 1 || p.energy > 3 || !Array.isArray(p.inventory) || !p.inventory.every((id: unknown) => typeof id === 'string' && Object.hasOwn(equipment, id)) || !['weapon', 'armor'].every(slot => p[slot] === null || (p.inventory.includes(p[slot]) && equipment[p[slot]]?.slot === slot))) return empty;
+      // Preserve old uncapped saves while applying the new level ceiling.
+      if (p.level > MAX_LEVEL) {
+        const removedLevels = p.level - MAX_LEVEL;
+        r.hero.maxHp = Math.max(1, r.hero.maxHp - removedLevels * 4);
+        r.hero.hp = Math.min(r.hero.hp, r.hero.maxHp);
+        p.level = MAX_LEVEL;
+      }
       if (r.combat && (!['hp', 'maxHp', 'attack', 'turn'].every(k => Number.isInteger(r.combat[k]) && r.combat[k] > 0) || r.combat.hp > r.combat.maxHp || !['physical', 'magic'].includes(r.combat.damageType) || !['playerBuff', 'enemyDebuff'].every(k => Number.isInteger(r.combat[k]) && r.combat[k] >= 0 && r.combat[k] <= 3) || !['physicalDefense', 'magicDefense'].every(k => Number.isInteger(r.combat[k]) && r.combat[k] >= 0) || !['strike', 'heavy', 'recover'].includes(r.combat.intent) || typeof r.combat.enemy !== 'string' || typeof r.combat.boss !== 'boolean' || !Array.isArray(r.combat.log) || !r.combat.log.every((line: unknown) => typeof line === 'string') || r.result || r.ending)) return empty;
     }
     return s;
@@ -251,13 +274,13 @@ export function battleTurn(run: Run, action: BattleAction): Run {
   if (combat.hp === 0) {
     const reward = combat.boss ? 12 : 5;
     hero.gold += reward; hero.relics++;
-    progression.exp += combat.boss ? 12 : 6;
     const drop = run.sceneId === 'wolf' ? 'blade' : run.sceneId === 'bridge' ? 'charm' : 'sword';
     const found = !progression.inventory.includes(drop);
     if (found) progression.inventory.push(drop);
     log.push(t("game.186", { reward: reward, value2: combat.boss ? 12 : 6, value3: found ? t("game.185", { name: equipment[drop].name }) : '' }));
-    while (progression.exp >= progression.level * 10) { progression.exp -= progression.level * 10; progression.level++; hero.maxHp += 4; hero.hp = Math.min(hero.maxHp, hero.hp + 8); log.push(t("game.187", { level: progression.level })); }
-    return { ...run, seed, hero, progression, combat: null, result: log.join('\n'), ending: combat.boss ? '모든 이름의 새벽' : null, journal: [...run.journal, t("game.188", { day: run.day, enemy: combat.enemy, value3: [...combat.log, ...log].join('\n') })] };
+    const grown = gainExperience({ ...run, hero, progression }, combat.boss ? 12 : 6);
+    for (let level = progression.level + 1; level <= grown.progression.level; level++) log.push(t("game.187", { level }));
+    return { ...grown, seed, combat: null, result: log.join('\n'), ending: combat.boss ? '모든 이름의 새벽' : null, journal: [...run.journal, t("game.188", { day: run.day, enemy: combat.enemy, value3: [...combat.log, ...log].join('\n') })] };
   }
   if (combat.intent === 'recover') { combat.hp = Math.min(combat.maxHp, combat.hp + 3); log.push(t("game.189", { enemy: combat.enemy })); }
   else {

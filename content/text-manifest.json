@@ -1828,5 +1828,35 @@
     "group": "creation",
     "context": "App.tsx",
     "notes": ""
+  },
+  {
+    "id": "progression.status",
+    "group": "progression",
+    "context": "src/LevelProgress.tsx",
+    "notes": "{level}, {maxLevel}, {exp}, {required}"
+  },
+  {
+    "id": "progression.maximum",
+    "group": "progression",
+    "context": "src/LevelProgress.tsx",
+    "notes": "{level}, {maxLevel}"
+  },
+  {
+    "id": "progression.remaining",
+    "group": "progression",
+    "context": "src/LevelProgress.tsx",
+    "notes": "{remaining}"
+  },
+  {
+    "id": "progression.banked",
+    "group": "progression",
+    "context": "src/LevelProgress.tsx",
+    "notes": "{exp}"
+  },
+  {
+    "id": "progression.label",
+    "group": "progression",
+    "context": "src/LevelProgress.tsx",
+    "notes": ""
   }
 ]

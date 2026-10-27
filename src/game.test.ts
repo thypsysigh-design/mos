@@ -1,7 +1,7 @@
 import { t } from './localization';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { emptyAllocation, validAllocation, advance, archive, autoBattle, combatStats, maxHealth, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
+import { MAX_LEVEL, gainExperience, experienceForNextLevel, emptyAllocation, validAllocation, advance, archive, autoBattle, combatStats, maxHealth, battleTurn, battleDisabled, beginCombat, equip, choose, currentScene, decodeSave, disabledReason, newRun, roles, type Role, type Run } from './game';
 
 test('same seed and choices produce the same adventure', () => {
   let a = newRun('sorcerer', 123), b = newRun('sorcerer', 123);
@@ -331,4 +331,67 @@ test('allocation permits specializing in one stat and rejects partial, excessive
     assert.equal(validAllocation(invalid), false);
     assert.throws(() => newRun('swordsman', 1, invalid), Error);
   }
+});
+
+test('experience starts at zero at level one; exact thresholds and multi-level carry are correct', () => {
+  const base = newRun('swordsman', 1);
+  assert.deepEqual([base.progression.level, base.progression.exp], [1, 0]);
+  assert.equal(experienceForNextLevel(1), 10);
+  const almost = gainExperience(base, 9);
+  assert.deepEqual([almost.progression.level, almost.progression.exp], [1, 9]);
+  const levelled = gainExperience(almost, 1);
+  assert.deepEqual([levelled.progression.level, levelled.progression.exp], [2, 0]);
+  assert.equal(levelled.hero.maxHp, base.hero.maxHp + 4);
+  const multiple = gainExperience(base, 65);
+  assert.deepEqual([multiple.progression.level, multiple.progression.exp], [4, 5]);
+  assert.equal(multiple.hero.maxHp, base.hero.maxHp + 12);
+  assert.deepEqual([base.progression.level, base.progression.exp], [1, 0]);
+});
+
+test('level 30 is a hard cap even for large rewards, and further experience never repeats growth rewards', () => {
+  const base = newRun('warrior', 2);
+  const max = gainExperience(base, 4350);
+  assert.equal(MAX_LEVEL, 30);
+  assert.deepEqual([max.progression.level, max.progression.exp], [30, 0]);
+  assert.equal(experienceForNextLevel(30), null);
+  assert.equal(max.hero.maxHp, base.hero.maxHp + 29 * 4);
+  const after = gainExperience(max, 12);
+  assert.deepEqual([after.progression.level, after.progression.exp], [30, 12]);
+  assert.deepEqual(after.hero, max.hero);
+  const huge = gainExperience(base, 1000000);
+  assert.equal(huge.progression.level, 30);
+  assert.equal(huge.progression.exp, 1000000 - 4350);
+  assert.equal(huge.hero.maxHp, max.hero.maxHp);
+  assert.throws(() => gainExperience(base, -1));
+  assert.throws(() => gainExperience(base, 1.5));
+});
+
+test('actual victory crosses level 29 into 30 exactly once and the result survives saving', () => {
+  const ready = gainExperience(newRun('swordsman', 1), 4349);
+  assert.deepEqual([ready.progression.level, ready.progression.exp], [29, 289]);
+  const combat = beginCombat(ready);
+  combat.combat!.hp = 1;
+  const won = autoBattle(combat);
+  assert.deepEqual([won.progression.level, won.progression.exp], [30, 5]);
+  assert.equal(won.battleReport!.levels, 1);
+  assert.equal(won.battleReport!.exp, 6);
+  assert.equal(autoBattle(won), won);
+  const restored = decodeSave(JSON.stringify({ version: 1, run: won, records: [] })).run!;
+  assert.deepEqual(restored, won);
+  const next = beginCombat({ ...restored, result: null, battleReport: null });
+  next.combat!.hp = 1;
+  const again = autoBattle(next);
+  assert.deepEqual([again.progression.level, again.progression.exp], [30, 11]);
+  assert.equal(again.battleReport!.levels, 0);
+  assert.equal(again.hero.maxHp, won.hero.maxHp);
+});
+
+test('old uncapped saves are clamped without deleting their character or story', () => {
+  const base = newRun('swordsman', 1);
+  const old = { ...base, progression: { ...base.progression, level: 31, exp: 7 }, hero: { ...base.hero, maxHp: base.hero.maxHp + 120, hp: base.hero.maxHp + 120 } };
+  const restored = decodeSave(JSON.stringify({ version: 1, run: old, records: [] })).run!;
+  assert.ok(restored);
+  assert.deepEqual([restored.progression.level, restored.progression.exp], [30, 7]);
+  assert.equal(restored.hero.maxHp, base.hero.maxHp + 116);
+  assert.deepEqual(restored.journal, old.journal);
 });

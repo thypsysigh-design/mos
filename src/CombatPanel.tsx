@@ -1,4 +1,5 @@
 import { t } from './localization';
+import { LevelProgress } from './LevelProgress';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { equipment, roles, combatStats, statNames, statEffects, type Stat, type BattleReport, type Run } from './game';
@@ -23,7 +24,7 @@ export function EquipmentPanel({ run, onEquip }: { run: Run; onEquip: (id: strin
     <Text style={s.enemy}>{t("ui.045")}</Text>
     <Text style={s.itemName}>{roles[run.role].name} · {roles[run.role].description}</Text>
     <Text style={s.help}>{t("combat_ui.012")}</Text>
-    <Text style={s.detail}>{t("combat_ui.013", { level: run.progression.level, exp: run.progression.exp, value3: run.progression.level * 10 })}</Text>
+    <LevelProgress run={run} />
     <Text style={s.detail}>{t("combat_ui.014", { potions: run.progression.potions })}</Text>
     <View style={s.item}>
       <Text style={s.itemName}>{t("combat_ui.015")}</Text>

@@ -303,5 +303,10 @@
   "creation.009": "직업을 바꿔도 추가 분배는 유지됩니다. 게임 시작 후에는 분배를 변경할 수 없습니다.",
   "button.next_stats": "다음: 스탯 분배",
   "button.back_to_class": "직업 선택으로 돌아가기",
-  "creation.allocation_step": "CHARACTER / 스탯 분배"
+  "creation.allocation_step": "CHARACTER / 스탯 분배",
+  "progression.status": "레벨 {level} / {maxLevel} · 경험치 {exp} / {required}",
+  "progression.maximum": "레벨 {level} / {maxLevel} · 최고 레벨",
+  "progression.remaining": "다음 레벨까지 경험치 {remaining}",
+  "progression.banked": "보유 경험치 {exp}",
+  "progression.label": "레벨 경험치"
 }
